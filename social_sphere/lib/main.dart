@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:social_sphere/features/auth/screens/login_screen.dart';
 import 'package:social_sphere/theme/pallete.dart';
+import 'package:social_sphere/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async{
+WidgetsFlutterBinding.ensureInitialized();
+await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
+
+  runApp(const ProviderScope(child: MyApp()),);
 }
 
 class MyApp extends StatelessWidget {

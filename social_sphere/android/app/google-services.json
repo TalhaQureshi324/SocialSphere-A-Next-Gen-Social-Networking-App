@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "802489692934",
+    "project_id": "socialsphere-9a833",
+    "storage_bucket": "socialsphere-9a833.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802489692934:android:38873daa353d8d0961e487",
+        "android_client_info": {
+          "package_name": "com.example.social_sphere"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGOa4BVOwD-TpMdA5OgNcaaTYyFaHKDFI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

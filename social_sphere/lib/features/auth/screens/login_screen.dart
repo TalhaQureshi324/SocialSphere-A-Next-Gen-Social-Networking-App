@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:social_sphere/core/constants/common/sign_button.dart';
+import 'package:social_sphere/core/common/sign_button.dart';
 import 'package:social_sphere/core/constants/constants.dart';
 
 class LoginScreen extends StatelessWidget {
