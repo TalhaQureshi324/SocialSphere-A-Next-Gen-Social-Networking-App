@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/core/common/sign_button.dart';
 import 'package:social_sphere/core/constants/constants.dart';
+import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 
-class LoginScreen extends StatelessWidget {
+
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    final isLoading = ref.watch(authControllerProvider);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -24,7 +31,9 @@ class LoginScreen extends StatelessWidget {
           ),
         ],
         ),
-        body: Column(
+        body: isLoading
+        ? const Loader() 
+        : Column(
           children: [
             const SizedBox(
               height: 30,

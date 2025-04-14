@@ -10,8 +10,8 @@ class SignInButton extends ConsumerWidget {
 
 
 
-  void SignInWithGoogle(WidgetRef ref) {
-      ref.read(authControllerProvider).signInWithGoogle();
+  void signInWithGoogle(BuildContext context,WidgetRef ref) {
+      ref.read(authControllerProvider.notifier).signInWithGoogle(context);
 
   }
 
@@ -22,7 +22,7 @@ class SignInButton extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.all(18.0),
       child: ElevatedButton.icon(
-        onPressed: () => SignInWithGoogle(ref),
+        onPressed: () => signInWithGoogle(context,ref),
         icon: Image.asset(Constants.googlepath,width: 35,),
         label: const Text("Continue with google",
         style: TextStyle(

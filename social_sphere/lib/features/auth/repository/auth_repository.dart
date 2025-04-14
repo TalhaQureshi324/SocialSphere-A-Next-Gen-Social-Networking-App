@@ -1,12 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:social_sphere/core/providers/failure.dart';
 import 'package:social_sphere/core/providers/firebase_providers.dart';
+import 'package:social_sphere/core/type_defs.dart';
 import 'package:social_sphere/models/user_model.dart';
 import 'package:social_sphere/core/constants/constants.dart';
 import 'package:social_sphere/core/constants/firebase_constants.dart';
+
+
+
 
 final authRepositoryProvider = Provider(
   (ref) => AuthRepository(
@@ -32,7 +38,7 @@ class AuthRepository {
   CollectionReference get _users =>
       _firestore.collection(FirebaseConstants.usersCollection);
 
-  Future<UserModel> signInWithGoogle() async {
+  FutureEither<UserModel> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
@@ -47,7 +53,7 @@ class AuthRepository {
         credential,
       );
 
-      late UserModel userModel;
+      UserModel userModel;
 
       if (userCredential.additionalUserInfo!.isNewUser) {
         userModel = UserModel(
@@ -61,9 +67,25 @@ class AuthRepository {
         );
         await _users.doc(userCredential.user!.uid).set(userModel.toMap());
       }
-      return userModel;
+      else
+      {
+        userModel = await getUserData(userCredential.user!.uid).first;
+
+      }
+      return right(userModel);
+    } on FirebaseException catch (e) {
+      throw e.message!;
     } catch (e) {
-      rethrow;
+      return left(Failure(e.toString()));
     }
   }
+
+
+ Stream<UserModel> getUserData(String uid) {
+  return _users.doc(uid).snapshots().map(
+    (event) => UserModel.fromMap(event.data() as Map<String, dynamic>),
+  );
+}
+
+
 }
