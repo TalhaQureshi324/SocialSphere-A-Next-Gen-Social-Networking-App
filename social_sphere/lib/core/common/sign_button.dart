@@ -11,7 +11,7 @@ class SignInButton extends ConsumerWidget {
 
 
   void SignInWithGoogle(WidgetRef ref) {
-      ref.read(authControllerProvider).SignInWithGoogle();
+      ref.read(authControllerProvider).signInWithGoogle();
 
   }
 
