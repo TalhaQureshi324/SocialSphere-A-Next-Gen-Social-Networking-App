@@ -17,7 +17,7 @@ class AuthController {
 
 
   void signInWithGoogle() async {
-      final user = await _authRepository.SignInWithGoogle();
+      final user = await _authRepository.signInWithGoogle();
     
   }
 
