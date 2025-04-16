@@ -11,11 +11,59 @@ class CreateCommunityScreen extends ConsumerStatefulWidget {
 
 class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
 
+  final communityNameController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    communityNameController.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
+      appBar: AppBar(
+        title: const Text("Create a Community"),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          children: [
+            const Align(
+              alignment: Alignment.topLeft,
+              child: Text("Community name")),
+            const SizedBox(height: 10),
+            TextField(
+              controller: communityNameController,
+              decoration: const InputDecoration(
+                hintText: "r/Community_name",
+                filled: true,
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.all(10),
+              ),
+              maxLength: 21,
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(onPressed: (){}, 
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 50),
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: const Text("Create Community",
+            style: TextStyle(
+              fontSize: 17,
+              ),
+            ),
+            ),
+          ],
+        ),
+      ),
+
     );
   }
 }
