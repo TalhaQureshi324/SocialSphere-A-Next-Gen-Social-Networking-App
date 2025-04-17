@@ -7,24 +7,27 @@ import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:social_sphere/core/utils.dart';
 
-
-
 final userCommunitiesProvider = StreamProvider((ref) {
   final communityController = ref.watch(communityControllerProvider.notifier);
   return communityController.getUserCommunities();
 });
 
-
 final communityControllerProvider =
     StateNotifierProvider<CommunityController, bool>((ref) {
-      final communityRepository = ref.watch(
-        communityRepositoryProvider,
-      );
+      final communityRepository = ref.watch(communityRepositoryProvider);
       return CommunityController(
         communityRepository: communityRepository,
         ref: ref,
       );
     });
+
+
+
+  final getCommunityByNameProvider = StreamProvider.family((ref, String name) {
+  return ref.watch(communityControllerProvider.notifier).getCommunityByName(name);
+});
+
+
 
 class CommunityController extends StateNotifier<bool> {
   final CommunityRepository _communityRepository;
@@ -59,10 +62,12 @@ class CommunityController extends StateNotifier<bool> {
     );
   }
 
-
   Stream<List<Community>> getUserCommunities() {
     final uid = _ref.read(userProvider)!.uid;
     return _communityRepository.getUserCommunities(uid);
   }
 
+  Stream<Community> getCommunityByName(String name) {
+    return _communityRepository.getCommunityByName(name);
+  }
 }
