@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:social_sphere/core/common/error_text.dart';
 import 'package:social_sphere/models/user_model.dart';
-import 'package:social_sphere/features/auth/screens/login_screen.dart';
 import 'package:social_sphere/router.dart';
 import 'package:social_sphere/theme/pallete.dart';
 import 'package:social_sphere/firebase_options.dart';

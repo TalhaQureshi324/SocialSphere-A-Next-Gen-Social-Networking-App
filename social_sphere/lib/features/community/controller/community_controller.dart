@@ -3,7 +3,6 @@ import 'package:social_sphere/features/community/repository/community_repository
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_sphere/models/community_model.dart';
 import 'package:social_sphere/core/constants/constants.dart';
-import 'package:social_sphere/core/providers/firebase_providers.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:social_sphere/core/utils.dart';

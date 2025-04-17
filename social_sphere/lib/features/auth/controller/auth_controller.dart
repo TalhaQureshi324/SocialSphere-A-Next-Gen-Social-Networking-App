@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_sphere/core/utils.dart';
 import 'package:social_sphere/features/auth/repository/auth_repository.dart';
 import 'package:social_sphere/models/user_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 
 
