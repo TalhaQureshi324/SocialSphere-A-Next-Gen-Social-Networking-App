@@ -7,7 +7,6 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:social_sphere/features/community/controller/community_controller.dart';
 import 'package:social_sphere/core/common/error_text.dart';
 import 'dart:io';
-import 'package:social_sphere/core/utils.dart';
 import 'package:image_picker/image_picker.dart'; // ✨ Updated: Added image_picker
 
 class EditCommunityScreen extends ConsumerStatefulWidget {
