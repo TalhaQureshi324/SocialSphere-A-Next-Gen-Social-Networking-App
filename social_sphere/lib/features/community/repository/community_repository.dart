@@ -36,7 +36,9 @@ class CommunityRepository {
   }
 
   Stream<List<Community>> getUserCommunities(String uid) {
-    return _communities.where('members', arrayContains: uid).snapshots().map((event) {
+    return _communities.where('members', arrayContains: uid).snapshots().map((
+      event,
+    ) {
       List<Community> communities = [];
       for (var doc in event.docs) {
         communities.add(Community.fromMap(doc.data() as Map<String, dynamic>));
@@ -45,12 +47,24 @@ class CommunityRepository {
     });
   }
 
-  
-
-    Stream<Community> getCommunityByName(String name) {
-    return _communities.doc(name).snapshots().map((event) => Community.fromMap(event.data() as Map<String, dynamic>));
+  Stream<Community> getCommunityByName(String name) {
+    return _communities
+        .doc(name)
+        .snapshots()
+        .map(
+          (event) => Community.fromMap(event.data() as Map<String, dynamic>),
+        );
   }
 
+  FutureVoid editCommunity(Community community) async {
+    try {
+      return right(_communities.doc(community.name).update(community.toMap()));
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
 
   CollectionReference get _communities =>
       _firestore.collection(FirebaseConstants.communitiesCollection);

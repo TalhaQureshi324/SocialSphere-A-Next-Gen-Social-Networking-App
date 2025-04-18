@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/core/constants/constants.dart';
+import 'package:social_sphere/models/community_model.dart';
 import 'package:social_sphere/theme/pallete.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:social_sphere/features/community/controller/community_controller.dart';
 import 'package:social_sphere/core/common/error_text.dart';
 import 'dart:io';
-import 'package:image_picker/image_picker.dart'; // ✨ Updated: Added image_picker
+import 'package:image_picker/image_picker.dart';
 
 class EditCommunityScreen extends ConsumerStatefulWidget {
   final String name;
@@ -58,6 +59,17 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
     }
   }
 
+  void save(Community community) {
+    ref
+        .read(communityControllerProvider.notifier)
+        .editCommunity(
+          profileFile: profileFile,
+          bannerFile: bannerFile,
+          context: context,
+          community: community,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ref
@@ -72,9 +84,7 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                   centerTitle: false,
                   actions: [
                     TextButton(
-                      onPressed: () {
-                        // Save changes
-                      },
+                      onPressed: () => save(community),
                       child: const Text("Save"),
                     ),
                   ],
