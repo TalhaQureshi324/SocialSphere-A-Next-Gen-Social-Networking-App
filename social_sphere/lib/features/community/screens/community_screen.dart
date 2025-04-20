@@ -6,6 +6,7 @@ import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/features/community/controller/community_controller.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:social_sphere/models/community_model.dart';
 
 class CommunityScreen extends ConsumerWidget {
   final String name;
@@ -13,6 +14,16 @@ class CommunityScreen extends ConsumerWidget {
 
   void navigateToModTools(BuildContext context) {
     Routemaster.of(context).push('/mod-tools/$name');
+  }
+
+  void joinCommunity(
+    WidgetRef ref,
+    Community community,
+    BuildContext context,
+  ) async {
+    ref
+        .read(communityControllerProvider.notifier)
+        .joinCommunity(community, context);
   }
 
   @override
@@ -81,7 +92,12 @@ class CommunityScreen extends ConsumerWidget {
                                       child: const Text("Mod Tools"),
                                     )
                                     : OutlinedButton(
-                                      onPressed: () {},
+                                      onPressed:
+                                          () => joinCommunity(
+                                            ref,
+                                            community,
+                                            context,
+                                          ),
                                       style: ElevatedButton.styleFrom(
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
