@@ -36,9 +36,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             .first;
     ref.read(userProvider.notifier).update((state) => userModel);
 
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   @override
@@ -50,7 +48,7 @@ class _MyAppState extends ConsumerState<MyApp> {
               (data) => MaterialApp.router(
                 debugShowCheckedModeBanner: false,
                 title: 'Reddit Tutorial',
-                theme: Pallete.darkModeAppTheme,
+                theme: ref.watch(themeNotifierProvider),
                 routerDelegate: RoutemasterDelegate(
                   routesBuilder: (context) {
                     if (data != null) {

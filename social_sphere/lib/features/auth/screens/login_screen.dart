@@ -4,9 +4,14 @@ import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/core/common/sign_button.dart';
 import 'package:social_sphere/core/constants/constants.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
+import 'package:social_sphere/responsive/responsive.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
+
+  void signInAsGuest(WidgetRef ref, BuildContext context) {
+    ref.read(authControllerProvider.notifier).signInAsGuest(context);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,7 +23,7 @@ class LoginScreen extends ConsumerWidget {
         title: Image.asset(Constants.logopath, height: 40),
         actions: [
           TextButton(
-            onPressed: () {},
+            onPressed: () => signInAsGuest(ref, context),
             child: const Text(
               "Skip",
               style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
@@ -46,7 +51,7 @@ class LoginScreen extends ConsumerWidget {
                     child: Image.asset(Constants.loginEmotepath, height: 400),
                   ),
                   const SizedBox(height: 20),
-                  const SignInButton(),
+                  Responsive(child: const SignInButton()),
                 ],
               ),
     );

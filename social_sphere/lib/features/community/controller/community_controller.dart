@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:social_sphere/core/providers/failure.dart';
+import 'package:social_sphere/core/failure.dart';
 import 'package:social_sphere/core/providers/storage_repository_provider.dart';
 import 'package:social_sphere/features/community/repository/community_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +10,8 @@ import 'package:routemaster/routemaster.dart';
 import 'package:social_sphere/core/utils.dart';
 import 'dart:io';
 import 'package:fpdart/fpdart.dart';
+import 'package:social_sphere/models/post_model.dart';
+import 'dart:typed_data';
 
 final userCommunitiesProvider = StreamProvider((ref) {
   final communityController = ref.watch(communityControllerProvider.notifier);
@@ -35,6 +37,10 @@ final getCommunityByNameProvider = StreamProvider.family((ref, String name) {
 
 final searchCommunityProvider = StreamProvider.family((ref, String query) {
   return ref.watch(communityControllerProvider.notifier).searchCommunity(query);
+});
+
+final getCommunityPostsProvider = StreamProvider.family((ref, String name) {
+  return ref.read(communityControllerProvider.notifier).getCommunityPosts(name);
 });
 
 class CommunityController extends StateNotifier<bool> {
@@ -114,6 +120,8 @@ class CommunityController extends StateNotifier<bool> {
   void editCommunity({
     required File? profileFile,
     required File? bannerFile,
+    required Uint8List? profileWebFile,
+    required Uint8List? bannerWebFile,
     required BuildContext context,
     required Community community,
   }) async {
@@ -123,6 +131,7 @@ class CommunityController extends StateNotifier<bool> {
         path: 'communities/profile',
         id: community.name,
         file: profileFile,
+        webFile: profileWebFile,
       );
       res.fold(
         (l) {
@@ -139,6 +148,7 @@ class CommunityController extends StateNotifier<bool> {
         path: 'communities/banner',
         id: community.name,
         file: bannerFile,
+        webFile: bannerWebFile,
       );
       res.fold(
         (l) {
@@ -182,5 +192,9 @@ class CommunityController extends StateNotifier<bool> {
         Routemaster.of(context).pop();
       },
     );
+  }
+
+  Stream<List<Post>> getCommunityPosts(String name) {
+    return _communityRepository.getCommunityPosts(name);
   }
 }
