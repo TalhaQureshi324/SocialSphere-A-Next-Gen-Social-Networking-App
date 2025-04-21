@@ -20,7 +20,7 @@ class LoginScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Image.asset(Constants.logopath, height: 40),
+        title: Image.asset(Constants.logoPath, height: 40),
         actions: [
           TextButton(
             onPressed: () => signInAsGuest(ref, context),
@@ -48,7 +48,7 @@ class LoginScreen extends ConsumerWidget {
                   const SizedBox(height: 30),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Image.asset(Constants.loginEmotepath, height: 400),
+                    child: Image.asset(Constants.loginEmotePath, height: 400),
                   ),
                   const SizedBox(height: 20),
                   Responsive(child: const SignInButton()),
