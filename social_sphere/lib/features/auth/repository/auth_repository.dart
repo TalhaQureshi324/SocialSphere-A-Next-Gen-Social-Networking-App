@@ -41,6 +41,7 @@ class AuthRepository {
   FutureEither<UserModel> signInWithGoogle(bool isFromLogin) async {
     try {
       UserCredential userCredential;
+
       if (kIsWeb) {
         GoogleAuthProvider googleProvider = GoogleAuthProvider();
         googleProvider.addScope(
@@ -67,13 +68,20 @@ class AuthRepository {
       }
 
       UserModel userModel;
+      final uid = userCredential.user!.uid;
+      final name = userCredential.user!.displayName ?? 'No Name';
+      final profilePic =
+          userCredential.user!.photoURL ?? Constants.avatarDefault;
 
-      if (userCredential.additionalUserInfo!.isNewUser) {
+      final userDoc = await _users.doc(uid).get();
+
+      if (!userDoc.exists) {
+        // User document does not exist, create it
         userModel = UserModel(
-          name: userCredential.user!.displayName ?? 'No Name',
-          profilePic: userCredential.user!.photoURL ?? Constants.avatarDefault,
+          name: name,
+          profilePic: profilePic,
           banner: Constants.bannerDefault,
-          uid: userCredential.user!.uid,
+          uid: uid,
           isAuthenticated: true,
           karma: 0,
           awards: [
@@ -87,10 +95,13 @@ class AuthRepository {
             'til',
           ],
         );
-        await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+
+        await _users.doc(uid).set(userModel.toMap());
       } else {
-        userModel = await getUserData(userCredential.user!.uid).first;
+        // User exists, fetch from Firestore
+        userModel = UserModel.fromMap(userDoc.data() as Map<String, dynamic>);
       }
+
       return right(userModel);
     } on FirebaseException catch (e) {
       throw e.message!;

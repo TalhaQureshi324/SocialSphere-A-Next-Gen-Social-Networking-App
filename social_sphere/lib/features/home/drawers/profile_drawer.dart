@@ -22,38 +22,117 @@ class ProfileDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider)!;
+    final theme = ref.watch(themeNotifierProvider);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Drawer(
+      backgroundColor: theme.scaffoldBackgroundColor,
       child: SafeArea(
-        child: Column(
-          children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage(user.profilePic),
-              radius: 70,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              user.name,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 10),
-            Divider(),
-            ListTile(
-              title: const Text("My Profile"),
-              leading: const Icon(Icons.person),
-              onTap: () => navigateToUserProfile(context, user.uid),
-            ),
-            ListTile(
-              title: const Text("Logout"),
-              leading: Icon(Icons.logout, color: Pallete.redColor),
-              onTap: () => logOut(ref),
-            ),
-            Switch.adaptive(
-              value:
-                  ref.watch(themeNotifierProvider.notifier).mode ==
-                  ThemeMode.dark,
-              onChanged: (val) => toggleTheme(ref),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(user.profilePic),
+                  radius: 50,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Center(
+                child: Text(
+                  user.name,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: theme.textTheme.bodyLarge?.color,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Center(
+                child: Text(
+                  "${user.name.toLowerCase()}",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Divider(color: isDark ? Colors.grey[700] : Colors.grey[300]),
+              const SizedBox(height: 10),
+
+              // Profile Button
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+                leading: Icon(Icons.person_outline,
+                    color: theme.iconTheme.color),
+                title: Text(
+                  'My Profile',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: theme.textTheme.bodyLarge?.color,
+                  ),
+                ),
+                onTap: () => navigateToUserProfile(context, user.uid),
+              ),
+
+              // Logout Button
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+                leading: const Icon(Icons.logout, color: Colors.blueAccent),
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+                onTap: () => logOut(ref),
+              ),
+
+              const Spacer(),
+
+              // Theme Toggle
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[850] : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(
+                      isDark ? Icons.dark_mode : Icons.light_mode,
+                      color: theme.iconTheme.color,
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          isDark ? 'Dark Mode' : 'Light Mode',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: theme.textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Switch.adaptive(
+                      value: ref
+                              .watch(themeNotifierProvider.notifier)
+                              .mode ==
+                          ThemeMode.dark,
+                      onChanged: (_) => toggleTheme(ref),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

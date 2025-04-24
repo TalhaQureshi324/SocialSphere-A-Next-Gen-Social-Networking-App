@@ -77,7 +77,7 @@ class CommunityController extends StateNotifier<bool> {
         showSnackBar(context, l.message);
       },
       (r) {
-        showSnackBar(context, "Community created successfully!!!");
+        showSnackBar(context, "Group created successfully!!!");
         Routemaster.of(context).pop();
       },
     );
@@ -100,9 +100,9 @@ class CommunityController extends StateNotifier<bool> {
       },
       (r) {
         if (community.members.contains(user.uid)) {
-          showSnackBar(context, "Left ${community.name} successfully");
+          showSnackBar(context, "Group Left ${community.name} successfully");
         } else {
-          showSnackBar(context, "Joined ${community.name} successfully");
+          showSnackBar(context, "Group Joined ${community.name} successfully");
         }
       },
     );
@@ -167,7 +167,7 @@ class CommunityController extends StateNotifier<bool> {
         showSnackBar(context, l.message);
       },
       (r) {
-        //showSnackBar(context, "Community edited successfully!!!");
+        showSnackBar(context, "Group edited successfully!!!");
         Routemaster.of(context).pop();
       },
     );
@@ -188,7 +188,7 @@ class CommunityController extends StateNotifier<bool> {
         showSnackBar(context, l.message);
       },
       (r) {
-        showSnackBar(context, "Mods added successfully!!!");
+        showSnackBar(context, "Admin added successfully!!!");
         Routemaster.of(context).pop();
       },
     );

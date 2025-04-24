@@ -13,65 +13,153 @@ class AddPostScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    double cardHeightWidth = kIsWeb ? 360 : 120;
-    double iconSize = kIsWeb ? 120 : 60;
     final currentTheme = ref.watch(themeNotifierProvider);
+    final bool isDark = currentTheme.brightness == Brightness.dark;
+    final bool isWeb = kIsWeb;
 
     return Scaffold(
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          GestureDetector(
-            onTap: () => navigateToType(context, 'image'),
-            child: SizedBox(
-              height: cardHeightWidth,
-              width: cardHeightWidth,
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+      appBar: AppBar(
+        title: const Text(
+          'Create New Post',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isWeb ? 150 : 20,
+              vertical: 20,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Choose post type',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                color: currentTheme.scaffoldBackgroundColor,
-                elevation: 16,
-                child: Center(
-                  child: Icon(Icons.image_outlined, size: iconSize),
+                const SizedBox(height: 40),
+                _buildPostTypeCard(
+                  context: context,
+                  icon: Icons.image_outlined,
+                  label: 'Image Post',
+                  description: 'Share photos or artwork',
+                  type: 'image',
+                  theme: currentTheme,
+                  isDark: isDark,
+                  isWeb: isWeb,
                 ),
-              ),
+                const SizedBox(height: 20),
+                _buildPostTypeCard(
+                  context: context,
+                  icon: Icons.font_download_outlined,
+                  label: 'Text Post',
+                  description: 'Write your thoughts',
+                  type: 'text',
+                  theme: currentTheme,
+                  isDark: isDark,
+                  isWeb: isWeb,
+                ),
+                const SizedBox(height: 20),
+                _buildPostTypeCard(
+                  context: context,
+                  icon: Icons.link_outlined,
+                  label: 'Link Post',
+                  description: 'Share interesting links',
+                  type: 'link',
+                  theme: currentTheme,
+                  isDark: isDark,
+                  isWeb: isWeb,
+                ),
+              ],
             ),
           ),
-          GestureDetector(
-            onTap: () => navigateToType(context, 'text'),
-            child: SizedBox(
-              height: cardHeightWidth,
-              width: cardHeightWidth,
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPostTypeCard({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required String description,
+    required String type,
+    required ThemeData theme,
+    required bool isDark,
+    required bool isWeb,
+  }) {
+    return GestureDetector(
+      onTap: () => navigateToType(context, type),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color:
+                isDark
+                    ? Colors.grey.shade900.withOpacity(0.6)
+                    : Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.blue.withOpacity(0.1),
                 ),
-                color: currentTheme.scaffoldBackgroundColor,
-                elevation: 16,
-                child: Center(
-                  child: Icon(Icons.font_download_outlined, size: iconSize),
+                child: Icon(icon, size: 30, color: Colors.blue),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: theme.textTheme.bodyLarge?.color,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color:
+                            isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () => navigateToType(context, 'link'),
-            child: SizedBox(
-              height: cardHeightWidth,
-              width: cardHeightWidth,
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                color: currentTheme.scaffoldBackgroundColor,
-                elevation: 16,
-                child: Center(child: Icon(Icons.link_outlined, size: iconSize)),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

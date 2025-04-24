@@ -8,7 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:social_sphere/core/common/loader.dart';
-import 'package:social_sphere/features/auth/controller/auth_controller.dart'; // Make sure this path is correct and has `authStateChangeProvider`
+import 'package:social_sphere/features/auth/controller/auth_controller.dart'; 
 import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {

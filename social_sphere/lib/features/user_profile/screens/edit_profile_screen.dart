@@ -1,9 +1,9 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:social_sphere/core/common/error_text.dart';
 import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/core/constants/constants.dart';
@@ -24,11 +24,9 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   File? bannerFile;
   File? profileFile;
-
   Uint8List? bannerWebFile;
   Uint8List? profileWebFile;
   late TextEditingController nameController;
-
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -43,42 +41,32 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
-  void selectBannerImage() async {
+  Future<void> selectBannerImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       if (kIsWeb) {
         final bytes = await pickedFile.readAsBytes();
-        setState(() {
-          bannerWebFile = bytes;
-        });
+        setState(() => bannerWebFile = bytes);
       } else {
-        setState(() {
-          bannerFile = File(pickedFile.path);
-        });
+        setState(() => bannerFile = File(pickedFile.path));
       }
     }
   }
 
-  void selectProfileImage() async {
+  Future<void> selectProfileImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       if (kIsWeb) {
         final bytes = await pickedFile.readAsBytes();
-        setState(() {
-          profileWebFile = bytes;
-        });
+        setState(() => profileWebFile = bytes);
       } else {
-        setState(() {
-          profileFile = File(pickedFile.path);
-        });
+        setState(() => profileFile = File(pickedFile.path));
       }
     }
   }
 
   void save() {
-    ref
-        .read(userProfileControllerProvider.notifier)
-        .editCommunity(
+    ref.read(userProfileControllerProvider.notifier).editCommunity(
           profileFile: profileFile,
           bannerFile: bannerFile,
           context: context,
@@ -92,130 +80,189 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Widget build(BuildContext context) {
     final isLoading = ref.watch(userProfileControllerProvider);
     final currentTheme = ref.watch(themeNotifierProvider);
+    final isDark = currentTheme.brightness == Brightness.dark;
 
-    return ref
-        .watch(getUserDataProvider(widget.uid))
-        .when(
-          data:
-              (user) => Scaffold(
-                backgroundColor: currentTheme.scaffoldBackgroundColor,
-                appBar: AppBar(
-                  title: const Text('Edit Profile'),
-                  centerTitle: false,
-                  actions: [
-                    TextButton(onPressed: save, child: const Text('Save')),
-                  ],
+    return ref.watch(getUserDataProvider(widget.uid)).when(
+          data: (user) => Scaffold(
+            backgroundColor: isDark
+                ? const Color.fromARGB(255, 21, 21, 21)
+                : Colors.white,
+            appBar: AppBar(
+              title: const Text('Edit Profile', 
+                     style: TextStyle(fontWeight: FontWeight.bold)),
+              centerTitle: true,
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: ElevatedButton(
+                    onPressed: save,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20, 
+                        vertical: 10),
+                    ),
+                    child: const Text('Save', 
+                           style: TextStyle(color: Colors.white)),
+                  ),
                 ),
-                body:
-                    isLoading
-                        ? const Loader()
-                        : Responsive(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
+              ],
+            ),
+            body: isLoading
+                ? const Loader()
+                : SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          // Banner Image Section
+                          Stack(
+                            children: [
+                              GestureDetector(
+                                onTap: selectBannerImage,
+                                child: Container(
+                                  height: 180,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: isDark 
+                                        ? Colors.grey.shade800 
+                                        : Colors.grey.shade200,
+                                  ),
+                                  child: _buildBannerImage(user),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 10,
+                                right: 10,
+                                child: FloatingActionButton.small(
+                                  onPressed: selectBannerImage,
+                                  backgroundColor: Colors.blue,
+                                  child: const Icon(Icons.edit, 
+                                         color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 80),
+
+                          // Profile Image Section
+                          Center(
+                            child: Stack(
+                              clipBehavior: Clip.none,
                               children: [
-                                SizedBox(
-                                  height: 200,
-                                  child: Stack(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: selectBannerImage,
-                                        child: DottedBorder(
-                                          borderType: BorderType.RRect,
-                                          radius: const Radius.circular(10),
-                                          dashPattern: const [10, 4],
-                                          strokeCap: StrokeCap.round,
-                                          color:
-                                              currentTheme
-                                                  .textTheme
-                                                  .bodyMedium!
-                                                  .color!,
-                                          child: Container(
-                                            width: double.infinity,
-                                            height: 150,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child:
-                                                bannerWebFile != null
-                                                    ? Image.memory(
-                                                      bannerWebFile!,
-                                                    )
-                                                    : bannerFile != null
-                                                    ? Image.file(bannerFile!)
-                                                    : user.banner.isEmpty ||
-                                                        user.banner ==
-                                                            Constants
-                                                                .bannerDefault
-                                                    ? const Center(
-                                                      child: Icon(
-                                                        Icons
-                                                            .camera_alt_outlined,
-                                                        size: 40,
-                                                      ),
-                                                    )
-                                                    : Image.network(
-                                                      user.banner,
-                                                    ),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        bottom: 20,
-                                        left: 20,
-                                        child: GestureDetector(
-                                          onTap: selectProfileImage,
-                                          child:
-                                              profileWebFile != null
-                                                  ? CircleAvatar(
-                                                    backgroundImage:
-                                                        MemoryImage(
-                                                          profileWebFile!,
-                                                        ),
-                                                    radius: 32,
-                                                  )
-                                                  : profileFile != null
-                                                  ? CircleAvatar(
-                                                    backgroundImage: FileImage(
-                                                      profileFile!,
-                                                    ),
-                                                    radius: 32,
-                                                  )
-                                                  : CircleAvatar(
-                                                    backgroundImage:
-                                                        NetworkImage(
-                                                          user.profilePic,
-                                                        ),
-                                                    radius: 32,
-                                                  ),
-                                        ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: currentTheme.scaffoldBackgroundColor,
+                                      width: 4,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
                                       ),
                                     ],
                                   ),
-                                ),
-                                TextField(
-                                  controller: nameController,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    hintText: 'Name',
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                        color: Colors.blue,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
+                                  child: CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: 
+                                        isDark 
+                                            ? Colors.grey.shade800 
+                                            : Colors.grey.shade200,
+                                    child: ClipOval(
+                                      child: _buildProfileImage(user),
                                     ),
-                                    border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.all(18),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: FloatingActionButton.small(
+                                    onPressed: selectProfileImage,
+                                    backgroundColor: Colors.blue,
+                                    child: const Icon(Icons.edit, 
+                                           color: Colors.white),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
-              ),
+                          const SizedBox(height: 32),
+
+                          // Name Field
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: TextField(
+                              controller: nameController,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: isDark 
+                                    ? Colors.grey.shade900 
+                                    : Colors.grey.shade100,
+                                hintText: 'Your Name',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                contentPadding: const EdgeInsets.all(16),
+                                prefixIcon: Icon(
+                                  Icons.person_outline,
+                                  color: currentTheme.iconTheme.color,
+                                ),
+                              ),
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          ),
           loading: () => const Loader(),
           error: (error, stackTrace) => ErrorText(error: error.toString()),
         );
+  }
+
+  Widget _buildBannerImage(user) {
+    if (bannerWebFile != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.memory(bannerWebFile!, fit: BoxFit.cover),
+      );
+    } else if (bannerFile != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.file(bannerFile!, fit: BoxFit.cover),
+      );
+    } else if (user.banner.isEmpty || user.banner == Constants.bannerDefault) {
+      return Center(
+        child: Icon(
+          Icons.camera_alt_outlined,
+          size: 40,
+          color: Colors.grey.shade500,
+        ),
+      );
+    } else {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(user.banner, fit: BoxFit.cover),
+      );
+    }
+  }
+
+  Widget _buildProfileImage(user) {
+    if (profileWebFile != null) {
+      return Image.memory(profileWebFile!, fit: BoxFit.cover);
+    } else if (profileFile != null) {
+      return Image.file(profileFile!, fit: BoxFit.cover);
+    } else {
+      return Image.network(user.profilePic, fit: BoxFit.cover);
+    }
   }
 }

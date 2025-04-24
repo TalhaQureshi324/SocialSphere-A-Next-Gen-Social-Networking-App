@@ -4,12 +4,13 @@ import 'package:social_sphere/features/post/screens/add_post_screen.dart';
 
 class Constants {
   static const logopath = 'assets/images/logo.png';
+  static const logopath2 = 'assets/images/logo2.png';
   static const loginEmotepath = 'assets/images/loginEmote.png';
   static const googlePath = 'assets/images/google.png';
   static const bannerDefault =
-      'https://thumbs.dreamstime.com/b/abstract-stained-pattern-rectangle-background-blue-sky-over-fiery-red-orange-color-modern-painting-art-watercolor-effe-texture-123047399.jpg';
+      'https://preview.redd.it/g9i03fsmwmq91.png?width=1200&format=png&auto=webp&s=77cc7832debbbc344881d52d09953f71985a620c';
   static const avatarDefault =
-      'https://external-preview.redd.it/5kh5OreeLd85QsqYO1Xz_4XSLYwZntfjqou-8fyBFoE.png?auto=webp&s=dbdabd04c399ce9c761ff899f5d38656d1de87c2';
+      'https://w7.pngwing.com/pngs/893/183/png-transparent-user-avatar-profile-person-man-people-account-instagram-icon.png';
 
   static const tabWidgets = [FeedScreen(), AddPostScreen()];
 

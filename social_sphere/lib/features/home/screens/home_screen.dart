@@ -8,7 +8,6 @@ import 'package:social_sphere/features/home/delegates/search_community_delegate.
 import 'package:social_sphere/features/home/drawers/community_list_drawer.dart';
 import 'package:social_sphere/features/home/drawers/profile_drawer.dart';
 import 'package:social_sphere/theme/pallete.dart';
-import 'package:routemaster/routemaster.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -20,19 +19,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _page = 0;
 
-  void displayDrawer(BuildContext context) {
-    Scaffold.of(context).openDrawer();
-  }
-
-  void displayEndDrawer(BuildContext context) {
-    Scaffold.of(context).openEndDrawer();
-  }
-
-  void onPageChanged(int page) {
-    setState(() {
-      _page = page;
-    });
-  }
+  void displayDrawer(BuildContext context) => Scaffold.of(context).openDrawer();
+  void displayEndDrawer(BuildContext context) => Scaffold.of(context).openEndDrawer();
+  void onPageChanged(int page) => setState(() => _page = page);
 
   @override
   Widget build(BuildContext context) {
@@ -42,39 +31,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: Row(
+          children: const [
+            SizedBox(width: 0),
+            Text(
+              'Social Sphere',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
         centerTitle: false,
         leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () => displayDrawer(context),
-            );
-          },
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu, color: currentTheme.iconTheme.color),
+            onPressed: () => displayDrawer(context),
+          ),
         ),
         actions: [
-          IconButton(
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: SearchCommunityDelegate(ref),
-              );
-            },
-            icon: const Icon(Icons.search),
-          ),
-          IconButton(
-            onPressed: () {
-              Routemaster.of(context).push('/add-post');
-            },
-            icon: const Icon(Icons.add),
-          ),
-          Builder(
-            builder: (context) {
-              return IconButton(
-                icon: CircleAvatar(
-                  backgroundImage: NetworkImage(user.profilePic),
+          Consumer(
+            builder: (context, ref, child) {
+              return Builder(
+                builder: (context) => IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Pallete.blueColor,
+                        width: 2,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 14,
+                      backgroundImage: NetworkImage(user.profilePic),
+                    ),
+                  ),
+                  onPressed: () => displayEndDrawer(context),
                 ),
-                onPressed: () => displayEndDrawer(context),
               );
             },
           ),
@@ -83,19 +76,115 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: Constants.tabWidgets[_page],
       drawer: const CommunityListDrawer(),
       endDrawer: isGuest ? null : const ProfileDrawer(),
-      bottomNavigationBar:
-          isGuest || kIsWeb
-              ? null
-              : CupertinoTabBar(
-                activeColor: currentTheme.iconTheme.color,
-                backgroundColor: currentTheme.scaffoldBackgroundColor,
-                items: const [
-                  BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-                  BottomNavigationBarItem(icon: Icon(Icons.add), label: ''),
+      bottomNavigationBar: isGuest || kIsWeb
+          ? null
+          : Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: currentTheme.scaffoldBackgroundColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, -2),
+                  ),
                 ],
-                onTap: onPageChanged,
-                currentIndex: _page,
               ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildNavItem(
+                    icon: Icons.home_outlined,
+                    activeIcon: Icons.home_filled,
+                    label: "Home",
+                    index: 0,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.search_rounded,
+                    label: "Search",
+                    onTap: () => showSearch(
+                      context: context,
+                      delegate: SearchCommunityDelegate(ref),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {}, // Optional: Action for logo tap
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          Constants.logopath2,
+                          height: 40,
+                          width: 40,
+                        ),
+                        const SizedBox(height: 10),
+                        // Text(
+                        //   "Logo",
+                        //   style: TextStyle(
+                        //     fontSize: 12,
+                        //     color: currentTheme.textTheme.bodyMedium?.color,
+                        //   ),
+                        //),
+                      ],
+                    ),
+                  ),
+                  _buildNavItem(
+                    icon: Icons.add_circle_outline,
+                    activeIcon: Icons.add_circle,
+                    label: "Create",
+                    index: 1,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.notifications,
+                    label: "Alerts",
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    IconData? activeIcon,
+    required String label,
+    int? index,
+    VoidCallback? onTap,
+  }) {
+    final currentTheme = ref.watch(themeNotifierProvider);
+    final isActive = index != null && _page == index;
+
+    return GestureDetector(
+      onTap: onTap ?? () => onPageChanged(index!),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isActive ? (activeIcon ?? icon) : icon,
+              color: isActive
+                  ? Pallete.blueColor
+                  : currentTheme.iconTheme.color?.withOpacity(0.6),
+              size: isActive ? 28 : 24,
+            ),
+            const SizedBox(height: 4),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                color: isActive
+                    ? Pallete.blueColor
+                    : currentTheme.iconTheme.color?.withOpacity(0.6),
+                fontSize: 12,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+              ),
+              child: Text(label),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

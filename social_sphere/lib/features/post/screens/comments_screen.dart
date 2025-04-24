@@ -7,7 +7,7 @@ import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:social_sphere/features/post/controller/post_controller.dart';
 import 'package:social_sphere/features/post/widgets/comment_card.dart';
 import 'package:social_sphere/models/post_model.dart';
-import 'package:social_sphere/responsive/responsive.dart';
+import 'package:social_sphere/theme/pallete.dart';
 
 class CommentsScreen extends ConsumerStatefulWidget {
   final String postId;
@@ -43,6 +43,8 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider)!;
     final isGuest = !user.isAuthenticated;
+    final currentTheme = ref.watch(themeNotifierProvider);
+    final bool isDark = currentTheme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(),
@@ -54,14 +56,51 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                 children: [
                   PostCard(post: data),
                   if (!isGuest)
-                    Responsive(
-                      child: TextField(
-                        onSubmitted: (val) => addComment(data),
-                        controller: commentController,
-                        decoration: const InputDecoration(
-                          hintText: 'What are your thoughts?',
-                          filled: true,
-                          border: InputBorder.none,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      child: Material(
+                        elevation: 2,
+                        borderRadius: BorderRadius.circular(20),
+                        color: isDark ? const Color.fromARGB(255, 66, 66, 66) : Colors.white,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          child: Row(
+                            
+                            children: [
+                              CircleAvatar(
+                              
+                                backgroundImage: NetworkImage(user.profilePic),
+                                radius: 16,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: TextField(
+                                  controller: commentController,
+                                  onSubmitted: (val) => addComment(data),
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: isDark ? const Color.fromARGB(255, 66, 66, 66) : Colors.white,
+                                    hintText: 'Add a comment...',
+                                    border: InputBorder.none,
+                                  ),
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () => addComment(data),
+                                icon: const Icon(Icons.send_rounded),
+                                color: Theme.of(context).colorScheme.primary,
+                                splashRadius: 22,
+                                tooltip: 'Send',
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -80,7 +119,6 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
                           );
                         },
                         error: (error, stackTrace) {
-                          //print(error);
                           return ErrorText(error: error.toString());
                         },
                         loading: () => const Loader(),

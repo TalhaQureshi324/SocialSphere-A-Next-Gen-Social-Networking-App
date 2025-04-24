@@ -2,8 +2,6 @@ import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:social_sphere/core/common/error_text.dart';
-import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/core/constants/constants.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:social_sphere/features/community/controller/community_controller.dart';
@@ -15,10 +13,7 @@ import 'package:routemaster/routemaster.dart';
 
 class PostCard extends ConsumerWidget {
   final Post post;
-  const PostCard({
-    super.key,
-    required this.post,
-  });
+  const PostCard({super.key, required this.post});
 
   void deletePost(WidgetRef ref, BuildContext context) async {
     ref.read(postControllerProvider.notifier).deletePost(post, context);
@@ -33,7 +28,9 @@ class PostCard extends ConsumerWidget {
   }
 
   void awardPost(WidgetRef ref, String award, BuildContext context) async {
-    ref.read(postControllerProvider.notifier).awardPost(post: post, award: award, context: context);
+    ref
+        .read(postControllerProvider.notifier)
+        .awardPost(post: post, award: award, context: context);
   }
 
   void navigateToUser(BuildContext context) {
@@ -48,6 +45,8 @@ class PostCard extends ConsumerWidget {
     Routemaster.of(context).push('/post/${post.id}/comments');
   }
 
+  // ... (keep all existing methods unchanged)
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isTypeImage = post.type == 'image';
@@ -55,265 +54,505 @@ class PostCard extends ConsumerWidget {
     final isTypeLink = post.type == 'link';
     final user = ref.watch(userProvider)!;
     final isGuest = !user.isAuthenticated;
-
     final currentTheme = ref.watch(themeNotifierProvider);
 
-    return 
-    Responsive(
-      child: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: currentTheme.drawerTheme.backgroundColor,
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (kIsWeb)
-                  Column(
-                    children: [
-                      IconButton(
-                        onPressed: isGuest ? () {} : () => upvotePost(ref),
-                        icon: Icon(
-                          Constants.up,
-                          size: 30,
-                          color: post.upvotes.contains(user.uid) ? Pallete.redColor : null,
-                        ),
-                      ),
-                      Text(
-                        '${post.upvotes.length - post.downvotes.length == 0 ? 'Vote' : post.upvotes.length - post.downvotes.length}',
-                        style: const TextStyle(fontSize: 17),
-                      ),
-                      IconButton(
-                        onPressed: isGuest ? () {} : () => downvotePost(ref),
-                        icon: Icon(
-                          Constants.down,
-                          size: 30,
-                          color: post.downvotes.contains(user.uid) ? Pallete.blueColor : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 4,
-                          horizontal: 16,
-                        ).copyWith(right: 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () => navigateToCommunity(context),
-                                      child: CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                          post.communityProfilePic,
-                                        ),
-                                        radius: 16,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 8),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'r/${post.communityName}',
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          GestureDetector(
-                                            onTap: () => navigateToUser(context),
-                                            child: Text(
-                                              'u/${post.username}',
-                                              style: const TextStyle(fontSize: 12),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (post.uid == user.uid)
-                                  IconButton(
-                                    onPressed: () => deletePost(ref, context),
-                                    icon: Icon(
-                                      Icons.delete,
-                                      color: Pallete.redColor,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            if (post.awards.isNotEmpty) ...[
-                              const SizedBox(height: 5),
-                              SizedBox(
-                                height: 25,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: post.awards.length,
-                                  itemBuilder: (BuildContext context, int index) {
-                                    final award = post.awards[index];
-                                    return Image.asset(
-                                      Constants.awards[award]!,
-                                      height: 23,
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Text(
-                                post.title,
-                                style: const TextStyle(
-                                  fontSize: 19,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            if (isTypeImage)
-                              SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.35,
-                                width: double.infinity,
-                                child: Image.network(
-                                  post.link!,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            if (isTypeLink)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 18),
-                                child: AnyLinkPreview(
-                                  displayDirection: UIDirection.uiDirectionHorizontal,
-                                  link: post.link!,
-                                ),
-                              ),
-                            if (isTypeText)
-                              Container(
-                                alignment: Alignment.bottomLeft,
-                                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                                child: Text(
-                                  post.description!,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                if (!kIsWeb)
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        onPressed: isGuest ? () {} : () => upvotePost(ref),
-                                        icon: Icon(
-                                          Constants.up,
-                                          size: 30,
-                                          color: post.upvotes.contains(user.uid) ? Pallete.redColor : null,
-                                        ),
-                                      ),
-                                      Text(
-                                        '${post.upvotes.length - post.downvotes.length == 0 ? 'Vote' : post.upvotes.length - post.downvotes.length}',
-                                        style: const TextStyle(fontSize: 17),
-                                      ),
-                                      IconButton(
-                                        onPressed: isGuest ? () {} : () => downvotePost(ref),
-                                        icon: Icon(
-                                          Constants.down,
-                                          size: 30,
-                                          color: post.downvotes.contains(user.uid) ? Pallete.blueColor : null,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () => navigateToComments(context),
-                                      icon: const Icon(
-                                        Icons.comment,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${post.commentCount == 0 ? 'Comment' : post.commentCount}',
-                                      style: const TextStyle(fontSize: 17),
-                                    ),
-                                  ],
-                                ),
-                                ref.watch(getCommunityByNameProvider(post.communityName)).when(
-                                      data: (data) {
-                                        if (data.mods.contains(user.uid)) {
-                                          return IconButton(
-                                            onPressed: () => deletePost(ref, context),
-                                            icon: const Icon(
-                                              Icons.admin_panel_settings,
-                                            ),
-                                          );
-                                        }
-                                        return const SizedBox();
-                                      },
-                                      error: (error, stackTrace) => ErrorText(
-                                        error: error.toString(),
-                                      ),
-                                      loading: () => const Loader(),
-                                    ),
-                                IconButton(
-                                  onPressed: isGuest
-                                      ? () {}
-                                      : () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) => Dialog(
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(20),
-                                                child: GridView.builder(
-                                                  shrinkWrap: true,
-                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                    crossAxisCount: 4,
-                                                  ),
-                                                  itemCount: user.awards.length,
-                                                  itemBuilder: (BuildContext context, int index) {
-                                                    final award = user.awards[index];
+    final bool isDark = currentTheme.brightness == Brightness.dark;
 
-                                                    return GestureDetector(
-                                                      onTap: () => awardPost(ref, award, context),
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.all(8.0),
-                                                        child: Image.asset(Constants.awards[award]!),
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                  icon: const Icon(Icons.card_giftcard_outlined),
+    return Responsive(
+      child: Card(
+        elevation: 1,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+            width: 1,
+          ),
+        ),
+        color: currentTheme.cardColor,
+        child: Column(
+          children: [
+            // Header section
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color:
+                    isDark
+                        ? Colors.grey.shade900.withOpacity(0.6)
+                        : Colors.grey.shade50,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => navigateToCommunity(context),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(post.communityProfilePic),
+                      radius: 18,
+                      backgroundColor: currentTheme.scaffoldBackgroundColor,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () => navigateToCommunity(context),
+                          child: Text(
+                            '${post.communityName}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: currentTheme.textTheme.bodyLarge?.color,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => navigateToUser(context),
+                          child: Text(
+                            'Posted by ${post.username}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color:
+                                  isDark
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (post.uid == user.uid)
+                    IconButton(
+                      onPressed: () => deletePost(ref, context),
+                      icon: Icon(
+                        Icons.delete,
+                        color: Pallete.redColor,
+                        size: 22,
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                ],
+              ),
+            ),
+
+            // Awards ribbon
+            if (post.awards.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 4,
+                  horizontal: 12,
+                ),
+                color:
+                    isDark
+                        ? Colors.grey.shade900.withOpacity(0.6)
+                        : Colors.grey.shade200,
+                child: SizedBox(
+                  height: 28,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: post.awards.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final award = post.awards[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Image.asset(
+                          Constants.awards[award]!,
+                          height: 25,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+            // Post content
+            Container(
+              width: double.infinity, // ⬅️ Force full width
+              color:
+                  isDark
+                      ? Colors.grey.shade900.withOpacity(0.6)
+                      : Colors.grey.shade200,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      post.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: currentTheme.textTheme.titleLarge?.color,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    if (isTypeImage)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          post.link!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: MediaQuery.of(context).size.height * 0.35,
+                        ),
+                      ),
+
+                    if (isTypeLink)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color:
+                                    isDark
+                                        ? Colors.grey.shade800
+                                        : Colors.grey.shade200,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: AnyLinkPreview(
+                              displayDirection:
+                                  UIDirection.uiDirectionHorizontal,
+                              link: post.link!,
+                              backgroundColor: currentTheme.colorScheme.surface,
+                              bodyMaxLines: 3,
+                              bodyTextOverflow: TextOverflow.ellipsis,
+                              titleStyle: TextStyle(
+                                color: currentTheme.textTheme.bodyLarge?.color,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    if (isTypeText)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: constraints.maxWidth,
+                              ),
+                              child: Text(
+                                post.description!,
+                                textAlign: TextAlign.start,
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
+                                style: TextStyle(
+                                  color:
+                                      isDark
+                                          ? Colors.grey.shade300
+                                          : Colors.grey.shade700,
+                                  fontSize: 15,
+                                  height: 1.4,
                                 ),
-                              ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Footer actions
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color:
+                    isDark
+                        ? Colors.grey.shade900.withOpacity(0.4)
+                        : Colors.grey.shade50,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(12),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Like/Dislike section (YouTube-style)
+                  Row(
+                    children: [
+                      // Like button
+                      Container(
+                        decoration: BoxDecoration(
+                          color:
+                              post.upvotes.contains(user.uid)
+                                  ? (isDark
+                                      ? Colors.blue.shade900
+                                      : Colors.blue.shade50)
+                                  : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color:
+                                isDark
+                                    ? Colors.grey.shade700
+                                    : Colors.grey.shade300,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              onPressed: isGuest ? null : () => upvotePost(ref),
+                              icon: Icon(
+                                Icons.thumb_up_alt_outlined,
+                                size: 20,
+                                color:
+                                    post.upvotes.contains(user.uid)
+                                        ? Pallete.blueColor
+                                        : currentTheme.iconTheme.color,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: Text(
+                                '${post.upvotes.length}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color:
+                                      post.upvotes.contains(user.uid)
+                                          ? Pallete.blueColor
+                                          : currentTheme
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.color,
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
+
+                      const SizedBox(width: 8),
+
+                      // Dislike button
+                      Container(
+                        decoration: BoxDecoration(
+                          color:
+                              post.downvotes.contains(user.uid)
+                                  ? (isDark
+                                      ? Colors.red.shade900
+                                      : Colors.red.shade50)
+                                  : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color:
+                                isDark
+                                    ? Colors.grey.shade700
+                                    : Colors.grey.shade300,
+                          ),
+                        ),
+                        child: IconButton(
+                          onPressed: isGuest ? null : () => downvotePost(ref),
+                          icon: Icon(
+                            Icons.thumb_down_alt_outlined,
+                            size: 20,
+                            color:
+                                post.downvotes.contains(user.uid)
+                                    ? Pallete.redColor
+                                    : currentTheme.iconTheme.color,
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              ],
+
+                  // Comments
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => navigateToComments(context),
+                        icon: Icon(
+                          Icons.comment_outlined,
+                          size: 20,
+                          color: currentTheme.iconTheme.color,
+                        ),
+                      ),
+                      Text(
+                        '${post.commentCount}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: currentTheme.textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Mod actions
+                  ref
+                      .watch(getCommunityByNameProvider(post.communityName))
+                      .when(
+                        data: (data) {
+                          if (data.mods.contains(user.uid)) {
+                            return IconButton(
+                              onPressed: () => deletePost(ref, context),
+                              icon: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.delete,
+                                    size: 28,
+                                    color: Colors.grey[800],
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: Icon(
+                                      Icons.shield,
+                                      size: 12,
+                                      color: const Color.fromARGB(
+                                        255,
+                                        220,
+                                        15,
+                                        0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              tooltip: 'Admin Panel',
+                            );
+
+                            // icon: Icon(
+                            //   Icons.security,
+                            //   size: 20,
+                            //   color: currentTheme.iconTheme.color,
+                            // ),
+                            //);
+                          }
+                          return const SizedBox();
+                        },
+                        error: (error, stackTrace) => const SizedBox(),
+                        loading: () => const SizedBox(),
+                      ),
+
+                  // Reaction button (replaces award)
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color:
+                            isDark
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade300,
+                      ),
+                    ),
+                    child: IconButton(
+                      onPressed:
+                          isGuest
+                              ? null
+                              : () {
+                                // showDialog(
+                                //   context: context,
+                                //   builder:
+                                //       (context) => Dialog(
+                                //         backgroundColor: currentTheme.cardColor,
+                                //         shape: RoundedRectangleBorder(
+                                //           borderRadius: BorderRadius.circular(
+                                //             16,
+                                //           ),
+                                //         ),
+                                //         child: Padding(
+                                //           padding: const EdgeInsets.all(20),
+                                //           child: Column(
+                                //             mainAxisSize: MainAxisSize.min,
+                                //             children: [
+                                //               Text(
+                                //                 'Add Reaction',
+                                //                 style: TextStyle(
+                                //                   fontSize: 18,
+                                //                   fontWeight: FontWeight.bold,
+                                //                   color:
+                                //                       currentTheme
+                                //                           .textTheme
+                                //                           .titleLarge
+                                //                           ?.color,
+                                //                 ),
+                                //               ),
+                                //               const SizedBox(height: 16),
+                                //               GridView.builder(
+                                //                 shrinkWrap: true,
+                                //                 gridDelegate:
+                                //                     const SliverGridDelegateWithFixedCrossAxisCount(
+                                //                       crossAxisCount: 4,
+                                //                       mainAxisSpacing: 8,
+                                //                       crossAxisSpacing: 8,
+                                //                     ),
+                                //                 itemCount: user.awards.length,
+                                //                 itemBuilder: (
+                                //                   BuildContext context,
+                                //                   int index,
+                                //                 ) {
+                                //                   final award =
+                                //                       user.awards[index];
+                                //                   return GestureDetector(
+                                //                     onTap:
+                                //                         () => awardPost(
+                                //                           ref,
+                                //                           award,
+                                //                           context,
+                                //                         ),
+                                //                     child: Container(
+                                //                       padding:
+                                //                           const EdgeInsets.all(
+                                //                             8,
+                                //                           ),
+                                //                       decoration: BoxDecoration(
+                                //                         borderRadius:
+                                //                             BorderRadius.circular(
+                                //                               8,
+                                //                             ),
+                                //                         color:
+                                //                             isDark
+                                //                                 ? Colors
+                                //                                     .grey
+                                //                                     .shade800
+                                //                                 : Colors
+                                //                                     .grey
+                                //                                     .shade100,
+                                //                       ),
+                                //                       child: Image.asset(
+                                //                         Constants
+                                //                             .awards[award]!,
+                                //                       ),
+                                //                     ),
+                                //                   );
+                                //                 },
+                                //               ),
+                                //             ],
+                                //           ),
+                                //         ),
+                                //       ),
+                                //);
+                              },
+                      icon: Icon(
+                        Icons.emoji_emotions_outlined,
+                        size: 20,
+                        color: currentTheme.iconTheme.color,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-        ],
+          ],
+        ),
       ),
     );
   }

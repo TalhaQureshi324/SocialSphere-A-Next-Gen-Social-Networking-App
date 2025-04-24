@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/features/community/controller/community_controller.dart';
 import 'package:social_sphere/responsive/responsive.dart';
+import 'package:social_sphere/theme/pallete.dart';
 
 class CreateCommunityScreen extends ConsumerStatefulWidget {
   const CreateCommunityScreen({super.key});
@@ -30,53 +31,81 @@ class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(communityControllerProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final currentTheme = ref.watch(themeNotifierProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Create a Community"),
+        title: const Text("Create A Group"),
         centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: createCommunity,
+            child:  Text(
+              "Create",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue,
+              ),
+            ),
+          ),
+        ],
       ),
-      body:
-          isLoading
-              ? const Loader()
-              : Responsive(
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    children: [
-                      const Align(
-                        alignment: Alignment.topLeft,
-                        child: Text("Community name"),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: communityNameController,
-                        decoration: const InputDecoration(
-                          hintText: "r/Community_name",
-                          filled: true,
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(10),
-                        ),
-                        maxLength: 21,
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: createCommunity,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+      body: isLoading
+          ? const Loader()
+          : Responsive(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: communityNameController,
+                      decoration: InputDecoration(
+                        hintText: "Group_Name",
+                        prefixIcon: const Icon(Icons.group_add_outlined),
+                        filled: true,
+                        fillColor: isDark
+                            ? Colors.grey.shade900
+                            : Colors.grey.shade200,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: isDark
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade400,
                           ),
                         ),
-                        child: const Text(
-                          "Create Community",
-                          style: TextStyle(fontSize: 17),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Pallete.blueColor,
+                            width: 1.5,
+                          ),
                         ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                          horizontal: 16,
+                        ),
+                        counterText: '',
                       ),
-                    ],
-                  ),
+                      maxLength: 21,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Group name should be unique, no space between characters and under 21 characters.",
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+            ),
     );
   }
 }

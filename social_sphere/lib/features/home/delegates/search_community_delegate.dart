@@ -44,7 +44,7 @@ class SearchCommunityDelegate extends SearchDelegate {
                     leading: CircleAvatar(
                       backgroundImage: NetworkImage(community.avatar),
                     ),
-                    title: Text('r/${community.name}'),
+                    title: Text('${community.name}'),
                     onTap: () => navigateToCommunity(context, community.name),
                   );
                 },
