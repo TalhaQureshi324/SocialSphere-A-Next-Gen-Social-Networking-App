@@ -256,6 +256,7 @@ class PostCard extends ConsumerWidget {
                                           : Colors.grey.shade700,
                                   fontSize: 15,
                                   height: 1.4,
+
                                 ),
                               ),
                             );

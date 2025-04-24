@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-//import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
 void showSnackBar(BuildContext context, String text) {
@@ -8,11 +7,9 @@ void showSnackBar(BuildContext context, String text) {
     ..showSnackBar(SnackBar(content: Text(text)));
 }
 
+final ImagePicker _picker = ImagePicker();
+
 Future<XFile?> pickImage() async {
-  final ImagePicker picker = ImagePicker();
-
-  // Pick a single image from gallery
-  final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
+  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
   return image;
 }
