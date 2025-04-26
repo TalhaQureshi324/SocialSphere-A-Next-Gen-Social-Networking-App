@@ -13,6 +13,8 @@ import 'package:social_sphere/features/user_profile/screens/edit_profile_screen.
 import 'package:social_sphere/features/user_profile/screens/user_profile_screen.dart';
 import 'package:routemaster/routemaster.dart';
 
+/// This file contains the route maps for the application.
+
 final loggedOutRoute = RouteMap(routes: {
   '/': (_) => const MaterialPage(child: LoginScreen()),
 });
