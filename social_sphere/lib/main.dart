@@ -8,8 +8,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:social_sphere/core/common/loader.dart';
-import 'package:social_sphere/features/auth/controller/auth_controller.dart'; 
+import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,12 +50,24 @@ class _MyAppState extends ConsumerState<MyApp> {
           data:
               (data) => MaterialApp.router(
                 debugShowCheckedModeBanner: false,
-                title: 'Reddit Tutorial',
+                title: 'Social Sphere',
                 theme: ref.watch(themeNotifierProvider),
+                scaffoldMessengerKey: scaffoldMessengerKey, // Add this line
+
                 routerDelegate: RoutemasterDelegate(
                   routesBuilder: (context) {
+                    // if (data != null) {
+                    //   getData(ref, data);
+                    //   if (userModel != null) {
+                    //     return loggedInRoute;
+                    //   }
+                    // }
                     if (data != null) {
-                      getData(ref, data);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted && userModel == null) {
+                          getData(ref, data);
+                        }
+                      });
                       if (userModel != null) {
                         return loggedInRoute;
                       }

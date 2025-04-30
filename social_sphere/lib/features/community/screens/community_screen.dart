@@ -18,7 +18,9 @@ class CommunityScreen extends ConsumerWidget {
   }
 
   void joinCommunity(WidgetRef ref, Community community, BuildContext context) {
-    ref.read(communityControllerProvider.notifier).joinCommunity(community, context);
+    ref
+        .read(communityControllerProvider.notifier)
+        .joinCommunity(community, context);
   }
 
   @override
@@ -28,7 +30,9 @@ class CommunityScreen extends ConsumerWidget {
 
     return Scaffold(
       //backgroundColor: Pallete.backgroundColor,
-      body: ref.watch(getCommunityByNameProvider(name)).when(
+      body: ref
+          .watch(getCommunityByNameProvider(name))
+          .when(
             data: (community) {
               return CustomScrollView(
                 slivers: [
@@ -40,13 +44,8 @@ class CommunityScreen extends ConsumerWidget {
                       background: Stack(
                         fit: StackFit.expand,
                         children: [
-                          Image.network(
-                            community.banner,
-                            fit: BoxFit.cover,
-                          ),
-                          Container(
-                            color: Colors.black.withOpacity(0.5),
-                          ),
+                          Image.network(community.banner, fit: BoxFit.cover),
+                          Container(color: Colors.black.withOpacity(0.5)),
                           Align(
                             alignment: Alignment.bottomLeft,
                             child: Padding(
@@ -54,12 +53,15 @@ class CommunityScreen extends ConsumerWidget {
                               child: Row(
                                 children: [
                                   CircleAvatar(
-                                    backgroundImage: NetworkImage(community.avatar),
+                                    backgroundImage: NetworkImage(
+                                      community.avatar,
+                                    ),
                                     radius: 30,
                                   ),
                                   const SizedBox(width: 12),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
@@ -89,49 +91,68 @@ class CommunityScreen extends ConsumerWidget {
                   ),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           if (!isGuest)
                             community.mods.contains(user.uid)
                                 ? ElevatedButton.icon(
-                                    onPressed: () => navigateToModTools(context),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Pallete.blueColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                  onPressed: () => navigateToModTools(context),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Pallete.blueColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
                                     ),
-                                    icon: const Icon(Icons.shield),
-                                    label: const Text('Admin Settings'),
-                                  )
-                                : ElevatedButton.icon(
-                                    onPressed: () => joinCommunity(ref, community, context),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: community.members.contains(user.uid)
-                                          ? Pallete.greyColor
-                                          : Pallete.blueColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                    ),
-                                    icon: Icon(
-                                      community.members.contains(user.uid)
-                                          ? Icons.check
-                                          : Icons.add,
-                                    ),
-                                    label: Text(
-                                      community.members.contains(user.uid) ? 'Joined' : 'Join',
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 10,
                                     ),
                                   ),
+                                  icon: const Icon(Icons.shield),
+                                  label: const Text('Admin Settings'),
+                                )
+                                : ElevatedButton.icon(
+                                  onPressed:
+                                      () => joinCommunity(
+                                        ref,
+                                        community,
+                                        context,
+                                      ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        community.members.contains(user.uid)
+                                            ? Pallete.greyColor
+                                            : Pallete.blueColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 10,
+                                    ),
+                                  ),
+                                  icon: Icon(
+                                    community.members.contains(user.uid)
+                                        ? Icons.check
+                                        : Icons.add,
+                                  ),
+                                  label: Text(
+                                    community.members.contains(user.uid)
+                                        ? 'Joined'
+                                        : 'Join',
+                                  ),
+                                ),
                         ],
                       ),
                     ),
                   ),
-                  ref.watch(getCommunityPostsProvider(name)).when(
+                  ref
+                      .watch(getCommunityPostsProvider(name))
+                      .when(
                         data: (posts) {
                           if (posts.isEmpty) {
                             return SliverToBoxAdapter(
@@ -140,7 +161,8 @@ class CommunityScreen extends ConsumerWidget {
                                   padding: const EdgeInsets.all(30.0),
                                   child: Text(
                                     "No posts yet. Be the first to post!",
-                                    style: Theme.of(context).textTheme.bodyLarge,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
                                   ),
                                 ),
                               ),
@@ -153,12 +175,12 @@ class CommunityScreen extends ConsumerWidget {
                             ),
                           );
                         },
-                        error: (error, stackTrace) => SliverToBoxAdapter(
-                          child: ErrorText(error: error.toString()),
-                        ),
-                        loading: () => const SliverToBoxAdapter(
-                          child: Loader(),
-                        ),
+                        error:
+                            (error, stackTrace) => SliverToBoxAdapter(
+                              child: ErrorText(error: error.toString()),
+                            ),
+                        loading:
+                            () => const SliverToBoxAdapter(child: Loader()),
                       ),
                 ],
               );

@@ -9,7 +9,7 @@ import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/core/constants/constants.dart';
 import 'package:social_sphere/features/community/controller/community_controller.dart';
 import 'package:social_sphere/models/community_model.dart';
-import 'package:social_sphere/responsive/responsive.dart';
+//import 'package:social_sphere/responsive/responsive.dart';
 import 'package:social_sphere/theme/pallete.dart';
 
 class EditCommunityScreen extends ConsumerStatefulWidget {
@@ -134,8 +134,7 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                       right: 10,
                                       child: FloatingActionButton.small(
                                         onPressed: selectBannerImage,
-                                        backgroundColor:
-                                            Colors.blue,
+                                        backgroundColor: Colors.blue,
                                         child: const Icon(
                                           Icons.edit,
                                           color: Colors.white,
@@ -174,8 +173,7 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                         right: 0,
                                         child: FloatingActionButton.small(
                                           onPressed: selectProfileImage,
-                                          backgroundColor:
-                                              Colors.blue,
+                                          backgroundColor: Colors.blue,
                                           child: const Icon(
                                             Icons.edit,
                                             color: Colors.white,

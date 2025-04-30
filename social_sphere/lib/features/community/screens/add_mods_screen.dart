@@ -43,11 +43,9 @@ class _AddModsScreenState extends ConsumerState<AddModsScreen> {
   }
 
   void saveMods() {
-    ref.read(communityControllerProvider.notifier).addMods(
-          widget.name,
-          uids.toList(),
-          context,
-        );
+    ref
+        .read(communityControllerProvider.notifier)
+        .addMods(widget.name, uids.toList(), context);
   }
 
   @override
@@ -72,62 +70,78 @@ class _AddModsScreenState extends ConsumerState<AddModsScreen> {
           ),
         ],
       ),
-      body: ref.watch(getCommunityByNameProvider(widget.name)).when(
-            data: (community) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: ListView.separated(
-                itemCount: community.members.length,
-                separatorBuilder: (_, __) => const Divider(height: 8),
-                itemBuilder: (context, index) {
-                  final member = community.members[index];
+      body: ref
+          .watch(getCommunityByNameProvider(widget.name))
+          .when(
+            data:
+                (community) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  child: ListView.separated(
+                    itemCount: community.members.length,
+                    separatorBuilder: (_, __) => const Divider(height: 8),
+                    itemBuilder: (context, index) {
+                      final member = community.members[index];
 
-                  return ref.watch(getUserDataProvider(member)).when(
-                        data: (user) => Container(
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.grey.shade900
-                                : Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isDark
-                                  ? Colors.grey.shade700
-                                  : Colors.grey.shade300,
-                            ),
-                          ),
-                          child: CheckboxListTile(
-                            activeColor: Colors.blue,
-                            checkboxShape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 4),
-                            value: uids.contains(user.uid),
-                            onChanged: (val) {
-                              if (val!) {
-                                addUid(user.uid);
-                              } else {
-                                removeUid(user.uid);
-                              }
-                            },
-                            title: Text(
-                              user.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                color: theme.textTheme.bodyLarge?.color,
-                              ),
-                            ),
-                            secondary: CircleAvatar(
-                              backgroundImage: NetworkImage(user.profilePic),
-                            ),
-                          ),
-                        ),
-                        error: (error, _) =>
-                            ErrorText(error: error.toString()),
-                        loading: () => const Loader(),
-                      );
-                },
-              ),
-            ),
+                      return ref
+                          .watch(getUserDataProvider(member))
+                          .when(
+                            data:
+                                (user) => Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        isDark
+                                            ? Colors.grey.shade900
+                                            : Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color:
+                                          isDark
+                                              ? Colors.grey.shade700
+                                              : Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  child: CheckboxListTile(
+                                    activeColor: Colors.blue,
+                                    checkboxShape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 4,
+                                    ),
+                                    value: uids.contains(user.uid),
+                                    onChanged: (val) {
+                                      if (val!) {
+                                        addUid(user.uid);
+                                      } else {
+                                        removeUid(user.uid);
+                                      }
+                                    },
+                                    title: Text(
+                                      user.name,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: theme.textTheme.bodyLarge?.color,
+                                      ),
+                                    ),
+                                    secondary: CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                        user.profilePic,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            error:
+                                (error, _) =>
+                                    ErrorText(error: error.toString()),
+                            loading: () => const Loader(),
+                          );
+                    },
+                  ),
+                ),
             error: (error, _) => ErrorText(error: error.toString()),
             loading: () => const Loader(),
           ),

@@ -24,54 +24,60 @@ class UserProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: currentTheme.scaffoldBackgroundColor,
-      body: ref.watch(getUserDataProvider(uid)).when(
-        data: (user) => CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 280,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                background: _ProfileHeader(
-                  user: user,
-                  isCurrentUser: isCurrentUser,
-                  onEditPressed: () => navigateToEditUser(context),
-                  theme: currentTheme,
-                ),
-              ),
-            ),
-            // SliverToBoxAdapter(
-            //   child: _UserInfoSection(user: user, theme: currentTheme),
-            // ),
-            SliverPadding(
-              padding: const EdgeInsets.only(top: 16),
-              sliver: ref.watch(getUserPostsProvider(uid)).when(
-                data: (posts) => SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+      body: ref
+          .watch(getUserDataProvider(uid))
+          .when(
+            data:
+                (user) => CustomScrollView(
+                  slivers: [
+                    SliverAppBar(
+                      expandedHeight: 280,
+                      pinned: true,
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: _ProfileHeader(
+                          user: user,
+                          isCurrentUser: isCurrentUser,
+                          onEditPressed: () => navigateToEditUser(context),
+                          theme: currentTheme,
                         ),
-                        child: PostCard(post: posts[index]),
-                      );
-                    },
-                    childCount: posts.length,
-                  ),
+                      ),
+                    ),
+                    // SliverToBoxAdapter(
+                    //   child: _UserInfoSection(user: user, theme: currentTheme),
+                    // ),
+                    SliverPadding(
+                      padding: const EdgeInsets.only(top: 16),
+                      sliver: ref
+                          .watch(getUserPostsProvider(uid))
+                          .when(
+                            data:
+                                (posts) => SliverList(
+                                  delegate: SliverChildBuilderDelegate((
+                                    context,
+                                    index,
+                                  ) {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      child: PostCard(post: posts[index]),
+                                    );
+                                  }, childCount: posts.length),
+                                ),
+                            error:
+                                (error, stackTrace) => SliverToBoxAdapter(
+                                  child: ErrorText(error: error.toString()),
+                                ),
+                            loading:
+                                () => const SliverToBoxAdapter(child: Loader()),
+                          ),
+                    ),
+                  ],
                 ),
-                error: (error, stackTrace) => SliverToBoxAdapter(
-                  child: ErrorText(error: error.toString()),
-                ),
-                loading: () => const SliverToBoxAdapter(
-                  child: Loader(),
-                ),
-              ),
-            ),
-          ],
-        ),
-        error: (error, stackTrace) => ErrorText(error: error.toString()),
-        loading: () => const Loader(),
-      ),
+            error: (error, stackTrace) => ErrorText(error: error.toString()),
+            loading: () => const Loader(),
+          ),
     );
   }
 }
@@ -114,10 +120,7 @@ class _ProfileHeader extends ConsumerWidget {
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
-              colors: [
-                Colors.black.withOpacity(0.7),
-                Colors.transparent,
-              ],
+              colors: [Colors.black.withOpacity(0.7), Colors.transparent],
             ),
           ),
         ),
@@ -142,7 +145,10 @@ class _ProfileHeader extends ConsumerWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: isDark ? const Color.fromARGB(255, 118, 114, 114) : const Color.fromARGB(255, 78, 69, 69),
+                        color:
+                            isDark
+                                ? const Color.fromARGB(255, 118, 114, 114)
+                                : const Color.fromARGB(255, 78, 69, 69),
                         blurRadius: 8,
                         spreadRadius: 2,
                       ),
@@ -166,7 +172,10 @@ class _ProfileHeader extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : const Color.fromARGB(255, 10, 10, 10),
+                          color:
+                              isDark
+                                  ? Colors.white
+                                  : const Color.fromARGB(255, 10, 10, 10),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -174,7 +183,10 @@ class _ProfileHeader extends ConsumerWidget {
                         'browsing ${user.karma} score',
                         style: TextStyle(
                           fontSize: 14,
-                          color: isDark ? Colors.white : const Color.fromARGB(255, 10, 10, 10),
+                          color:
+                              isDark
+                                  ? Colors.white
+                                  : const Color.fromARGB(255, 10, 10, 10),
                         ),
                       ),
                     ],
@@ -267,7 +279,7 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = theme.brightness == Brightness.dark; 
+    final isDark = theme.brightness == Brightness.dark;
     return Column(
       children: [
         Text(
@@ -275,7 +287,8 @@ class _StatItem extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : const Color.fromARGB(255, 10, 10, 10),
+            color:
+                isDark ? Colors.white : const Color.fromARGB(255, 10, 10, 10),
           ),
         ),
         const SizedBox(height: 4),
@@ -283,7 +296,8 @@ class _StatItem extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: isDark ? Colors.white : const Color.fromARGB(255, 10, 10, 10),
+            color:
+                isDark ? Colors.white : const Color.fromARGB(255, 10, 10, 10),
           ),
         ),
       ],

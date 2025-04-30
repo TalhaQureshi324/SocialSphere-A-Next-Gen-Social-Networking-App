@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_sphere/models/comment_model.dart';
 import 'package:social_sphere/responsive/responsive.dart';
-import 'package:social_sphere/theme/pallete.dart';
+//import 'package:social_sphere/theme/pallete.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class CommentCard extends ConsumerWidget {
@@ -83,7 +83,7 @@ class CommentCard extends ConsumerWidget {
                           : Colors.grey.shade900,
                   splashRadius: 20,
                 ),
-                 Text(
+                Text(
                   'Reply',
                   style: TextStyle(
                     fontSize: 14,

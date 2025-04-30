@@ -69,6 +69,11 @@ class CommunityController extends StateNotifier<bool> {
       members: [uid],
       mods: [uid],
     );
+    if (name.isEmpty || name.contains(" ")) {
+      showSnackBar(context, "Please enter a valid group name without spaces");
+      state = false;
+      return;
+    }
 
     final res = await _communityRepository.createCommunity(community);
     state = false;

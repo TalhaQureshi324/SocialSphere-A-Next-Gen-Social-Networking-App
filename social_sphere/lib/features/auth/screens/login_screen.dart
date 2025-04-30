@@ -5,7 +5,7 @@ import 'package:social_sphere/core/common/sign_button.dart';
 import 'package:social_sphere/core/constants/constants.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:social_sphere/responsive/responsive.dart';
-import 'package:social_sphere/theme/pallete.dart';
+//import 'package:social_sphere/theme/pallete.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
@@ -19,7 +19,7 @@ class LoginScreen extends ConsumerWidget {
     final isLoading = ref.watch(authControllerProvider);
     final size = MediaQuery.of(context).size;
     final theme = Theme.of(context);
-    final currentTheme = ref.watch(themeNotifierProvider);
+    //final currentTheme = ref.watch(themeNotifierProvider);
     bool isDarkMode = theme.brightness == Brightness.dark;
 
     return Scaffold(
@@ -32,7 +32,10 @@ class LoginScreen extends ConsumerWidget {
                   Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Color.fromARGB(255, 128, 129, 130), Color.fromARGB(255, 42, 20, 47)],
+                        colors: [
+                          Color.fromARGB(255, 128, 129, 130),
+                          Color.fromARGB(255, 42, 20, 47),
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -63,7 +66,8 @@ class LoginScreen extends ConsumerWidget {
                         vertical: 30,
                       ),
                       decoration: BoxDecoration(
-                        color: isDarkMode
+                        color:
+                            isDarkMode
                                 ? const Color.fromARGB(255, 50, 50, 50)
                                 : const Color.fromARGB(255, 192, 190, 190),
                         borderRadius: const BorderRadius.only(
@@ -72,9 +76,10 @@ class LoginScreen extends ConsumerWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: isDarkMode
-                                ? const Color.fromARGB(255, 176, 174, 174)
-                                : const Color.fromARGB(255, 52, 51, 51),
+                            color:
+                                isDarkMode
+                                    ? const Color.fromARGB(255, 176, 174, 174)
+                                    : const Color.fromARGB(255, 52, 51, 51),
                             blurRadius: 20,
                             offset: const Offset(0, -4),
                           ),
@@ -128,7 +133,6 @@ class LoginScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-
                   ),
                 ],
               ),

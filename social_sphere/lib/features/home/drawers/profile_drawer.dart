@@ -53,11 +53,8 @@ class ProfileDrawer extends ConsumerWidget {
               const SizedBox(height: 6),
               Center(
                 child: Text(
-                  "${user.name.toLowerCase()}",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  "${user.username.toLowerCase()}",
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ),
               const SizedBox(height: 20),
@@ -67,8 +64,10 @@ class ProfileDrawer extends ConsumerWidget {
               // Profile Button
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                leading: Icon(Icons.person_outline,
-                    color: theme.iconTheme.color),
+                leading: Icon(
+                  Icons.person_outline,
+                  color: theme.iconTheme.color,
+                ),
                 title: Text(
                   'My Profile',
                   style: TextStyle(
@@ -85,10 +84,7 @@ class ProfileDrawer extends ConsumerWidget {
                 leading: const Icon(Icons.logout, color: Colors.blueAccent),
                 title: const Text(
                   'Logout',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blueAccent,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.blueAccent),
                 ),
                 onTap: () => logOut(ref),
               ),
@@ -122,9 +118,8 @@ class ProfileDrawer extends ConsumerWidget {
                       ),
                     ),
                     Switch.adaptive(
-                      value: ref
-                              .watch(themeNotifierProvider.notifier)
-                              .mode ==
+                      value:
+                          ref.watch(themeNotifierProvider.notifier).mode ==
                           ThemeMode.dark,
                       onChanged: (_) => toggleTheme(ref),
                     ),

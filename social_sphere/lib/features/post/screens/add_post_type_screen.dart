@@ -9,7 +9,7 @@ import 'package:social_sphere/core/utils.dart';
 import 'package:social_sphere/features/community/controller/community_controller.dart';
 import 'package:social_sphere/features/post/controller/post_controller.dart';
 import 'package:social_sphere/models/community_model.dart';
-import 'package:social_sphere/responsive/responsive.dart';
+//import 'package:social_sphere/responsive/responsive.dart';
 import 'package:social_sphere/theme/pallete.dart';
 
 class AddPostTypeScreen extends ConsumerStatefulWidget {
@@ -161,9 +161,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                           hintText: 'Add a title...',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: Colors.grey,
-                            ),
+                            borderSide: BorderSide(color: Colors.grey),
                           ),
                           contentPadding: const EdgeInsets.all(16),
                         ),

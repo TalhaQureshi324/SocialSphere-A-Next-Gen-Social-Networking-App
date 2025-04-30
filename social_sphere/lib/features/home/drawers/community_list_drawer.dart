@@ -56,7 +56,7 @@ class CommunityListDrawer extends ConsumerWidget {
                       ),
                     ),
                     onPressed: () => navigateToCreateCommunity(context),
-                    icon: const Icon(Icons.group_add_outlined,size: 30,),
+                    icon: const Icon(Icons.group_add_outlined, size: 30),
                     label: const Text("Create a Group"),
                   ),
               const SizedBox(height: 16),

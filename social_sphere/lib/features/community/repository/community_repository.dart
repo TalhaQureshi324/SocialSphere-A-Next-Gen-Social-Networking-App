@@ -22,7 +22,7 @@ class CommunityRepository {
     try {
       var communityDoc = await _communities.doc(community.name).get();
       if (communityDoc.exists) {
-        throw Exception("Community with the same name already exists");
+        throw Exception("Group with the same name already exists");
       }
 
       return right(

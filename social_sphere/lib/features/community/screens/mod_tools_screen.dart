@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_sphere/theme/pallete.dart';
-import 'package:social_sphere/theme/pallete.dart'; // Assuming themeNotifierProvider is here
+//import 'package:social_sphere/theme/pallete.dart'; // Assuming themeNotifierProvider is here
 
 class ModToolsScreen extends ConsumerWidget {
   final String name;
@@ -93,11 +93,7 @@ class _ModOptionTile extends StatelessWidget {
                 color: Colors.blue.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 26,
-                color: Colors.blue,
-              ),
+              child: Icon(icon, size: 26, color: Colors.blue),
             ),
             const SizedBox(width: 16),
             Expanded(

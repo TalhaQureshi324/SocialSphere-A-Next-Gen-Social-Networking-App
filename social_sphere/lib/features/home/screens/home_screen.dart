@@ -20,7 +20,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _page = 0;
 
   void displayDrawer(BuildContext context) => Scaffold.of(context).openDrawer();
-  void displayEndDrawer(BuildContext context) => Scaffold.of(context).openEndDrawer();
+  void displayEndDrawer(BuildContext context) =>
+      Scaffold.of(context).openEndDrawer();
   void onPageChanged(int page) => setState(() => _page = page);
 
   @override
@@ -42,32 +43,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         centerTitle: false,
         leading: Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: currentTheme.iconTheme.color),
-            onPressed: () => displayDrawer(context),
-          ),
+          builder:
+              (context) => IconButton(
+                icon: Icon(Icons.menu, color: currentTheme.iconTheme.color),
+                onPressed: () => displayDrawer(context),
+              ),
         ),
         actions: [
           Consumer(
             builder: (context, ref, child) {
               return Builder(
-                builder: (context) => IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Pallete.blueColor,
-                        width: 2,
+                builder:
+                    (context) => IconButton(
+                      icon: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Pallete.blueColor,
+                            width: 2,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 14,
+                          backgroundImage: NetworkImage(user.profilePic),
+                        ),
                       ),
+                      onPressed: () => displayEndDrawer(context),
                     ),
-                    child: CircleAvatar(
-                      radius: 14,
-                      backgroundImage: NetworkImage(user.profilePic),
-                    ),
-                  ),
-                  onPressed: () => displayEndDrawer(context),
-                ),
               );
             },
           ),
@@ -76,72 +79,74 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: Constants.tabWidgets[_page],
       drawer: const CommunityListDrawer(),
       endDrawer: isGuest ? null : const ProfileDrawer(),
-      bottomNavigationBar: isGuest || kIsWeb
-          ? null
-          : Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: currentTheme.scaffoldBackgroundColor,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildNavItem(
-                    icon: Icons.home_outlined,
-                    activeIcon: Icons.home_filled,
-                    label: "Home",
-                    index: 0,
-                  ),
-                  _buildNavItem(
-                    icon: Icons.search_rounded,
-                    label: "Search",
-                    onTap: () => showSearch(
-                      context: context,
-                      delegate: SearchCommunityDelegate(ref),
+      bottomNavigationBar:
+          isGuest || kIsWeb
+              ? null
+              : Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: currentTheme.scaffoldBackgroundColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {}, // Optional: Action for logo tap
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          Constants.logopath2,
-                          height: 40,
-                          width: 40,
-                        ),
-                        const SizedBox(height: 10),
-                        // Text(
-                        //   "Logo",
-                        //   style: TextStyle(
-                        //     fontSize: 12,
-                        //     color: currentTheme.textTheme.bodyMedium?.color,
-                        //   ),
-                        //),
-                      ],
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem(
+                      icon: Icons.home_outlined,
+                      activeIcon: Icons.home_filled,
+                      label: "Home",
+                      index: 0,
                     ),
-                  ),
-                  _buildNavItem(
-                    icon: Icons.add_circle_outline,
-                    activeIcon: Icons.add_circle,
-                    label: "Create",
-                    index: 1,
-                  ),
-                  _buildNavItem(
-                    icon: Icons.notifications,
-                    label: "Alerts",
-                    onTap: () {},
-                  ),
-                ],
+                    _buildNavItem(
+                      icon: Icons.search_rounded,
+                      label: "Search",
+                      onTap:
+                          () => showSearch(
+                            context: context,
+                            delegate: SearchCommunityDelegate(ref),
+                          ),
+                    ),
+                    GestureDetector(
+                      onTap: () {}, // Optional: Action for logo tap
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            Constants.logopath2,
+                            height: 40,
+                            width: 40,
+                          ),
+                          const SizedBox(height: 10),
+                          // Text(
+                          //   "Logo",
+                          //   style: TextStyle(
+                          //     fontSize: 12,
+                          //     color: currentTheme.textTheme.bodyMedium?.color,
+                          //   ),
+                          //),
+                        ],
+                      ),
+                    ),
+                    _buildNavItem(
+                      icon: Icons.add_circle_outline,
+                      activeIcon: Icons.add_circle,
+                      label: "Create",
+                      index: 1,
+                    ),
+                    _buildNavItem(
+                      icon: Icons.notifications,
+                      label: "Alerts",
+                      onTap: () {},
+                    ),
+                  ],
+                ),
               ),
-            ),
     );
   }
 
@@ -165,18 +170,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             Icon(
               isActive ? (activeIcon ?? icon) : icon,
-              color: isActive
-                  ? Pallete.blueColor
-                  : currentTheme.iconTheme.color?.withOpacity(0.6),
+              color:
+                  isActive
+                      ? Pallete.blueColor
+                      : currentTheme.iconTheme.color?.withOpacity(0.6),
               size: isActive ? 28 : 24,
             ),
             const SizedBox(height: 4),
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
-                color: isActive
-                    ? Pallete.blueColor
-                    : currentTheme.iconTheme.color?.withOpacity(0.6),
+                color:
+                    isActive
+                        ? Pallete.blueColor
+                        : currentTheme.iconTheme.color?.withOpacity(0.6),
                 fontSize: 12,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
               ),
