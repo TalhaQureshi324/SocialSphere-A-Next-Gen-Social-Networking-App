@@ -11,8 +11,8 @@ import 'package:social_sphere/features/post/screens/add_post_type_screen.dart';
 import 'package:social_sphere/features/post/screens/comments_screen.dart';
 import 'package:social_sphere/features/user_profile/screens/edit_profile_screen.dart';
 import 'package:social_sphere/features/user_profile/screens/user_profile_screen.dart';
+import 'package:social_sphere/features/notification/screens/notification_screen.dart';
 import 'package:routemaster/routemaster.dart';
-
 /// This file contains the route maps for the application.
 
 final loggedOutRoute = RouteMap(
@@ -57,5 +57,14 @@ final loggedInRoute = RouteMap(
           child: CommentsScreen(postId: route.pathParameters['postId']!),
         ),
     '/add-post': (routeData) => const MaterialPage(child: AddPostScreen()),
+    // In loggedInRoute (router.dart)
+    '/notifications': (_) => const MaterialPage(child: NotificationScreen()),
+    // Add this route
+    // '/r/:name/post/:postId':
+    //     (route) => MaterialPage(
+    //       child: PostScreen(
+    //         postId: route.pathParameters['postId']!,
+    //       ),
+    //     ),
   },
 );

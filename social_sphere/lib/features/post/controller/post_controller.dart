@@ -13,6 +13,8 @@ import 'package:social_sphere/models/community_model.dart';
 import 'package:social_sphere/models/post_model.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:uuid/uuid.dart';
+import 'package:social_sphere/models/notification_model.dart';
+import 'package:social_sphere/features/notification/repository/notification_repository.dart';
 
 final postControllerProvider = StateNotifierProvider<PostController, bool>((
   ref,
@@ -49,6 +51,8 @@ final getPostCommentsProvider = StreamProvider.family((ref, String postId) {
   return postController.fetchPostComments(postId);
 });
 
+
+
 class PostController extends StateNotifier<bool> {
   final PostRepository _postRepository;
   final Ref _ref;
@@ -62,6 +66,36 @@ class PostController extends StateNotifier<bool> {
        _storageRepository = storageRepository,
        super(false);
 
+  // Add this new method to create notifications
+  Future<void> _createNotificationsForPost(Post post, Community community) async {
+    final notificationRepository = _ref.read(notificationRepositoryProvider);
+    final user = _ref.read(userProvider)!;
+
+    for (final memberId in community.members) {
+      if (memberId == user.uid) continue; // Skip post author
+
+      final notification = NotificationModel(
+        id: const Uuid().v1(),
+        userId: memberId,
+        communityId: community.id,
+        communityName: community.name,
+        communityAvatar: community.avatar,
+        postId: post.id,
+        postTitle: post.title,
+        authorName: post.username,
+        createdAt: DateTime.now(),
+        isRead: false,
+      );
+
+      final res = await notificationRepository.createNotification(notification);
+      res.fold(
+        (l) => debugPrint('Error creating notification: ${l.message}'),
+        (r) => null,
+      );
+    }
+  }
+
+  // Updated shareTextPost with notifications
   void shareTextPost({
     required BuildContext context,
     required String title,
@@ -93,12 +127,14 @@ class PostController extends StateNotifier<bool> {
         .read(userProfileControllerProvider.notifier)
         .updateUserKarma(UserKarma.textPost);
     state = false;
-    res.fold((l) => showSnackBar(context, l.message), (r) {
+    res.fold((l) => showSnackBar(context, l.message), (r) async {
+      await _createNotificationsForPost(post, selectedCommunity);
       showSnackBar(context, 'Posted successfully!');
       Routemaster.of(context).pop();
     });
   }
 
+  // Updated shareLinkPost with notifications
   void shareLinkPost({
     required BuildContext context,
     required String title,
@@ -130,12 +166,14 @@ class PostController extends StateNotifier<bool> {
         .read(userProfileControllerProvider.notifier)
         .updateUserKarma(UserKarma.linkPost);
     state = false;
-    res.fold((l) => showSnackBar(context, l.message), (r) {
+    res.fold((l) => showSnackBar(context, l.message), (r) async {
+      await _createNotificationsForPost(post, selectedCommunity);
       showSnackBar(context, 'Posted successfully!');
       Routemaster.of(context).pop();
     });
   }
 
+  // Updated shareImagePost with notifications
   void shareImagePost({
     required BuildContext context,
     required String title,
@@ -175,13 +213,13 @@ class PostController extends StateNotifier<bool> {
           .read(userProfileControllerProvider.notifier)
           .updateUserKarma(UserKarma.imagePost);
       state = false;
-      res.fold((l) => showSnackBar(context, l.message), (r) {
+      res.fold((l) => showSnackBar(context, l.message), (r) async {
+        await _createNotificationsForPost(post, selectedCommunity);
         showSnackBar(context, 'Posted successfully!');
         Routemaster.of(context).pop();
       });
     });
   }
-
   Stream<List<Post>> fetchUserPosts(List<Community> communities) {
     if (communities.isNotEmpty) {
       return _postRepository.fetchUserPosts(communities);

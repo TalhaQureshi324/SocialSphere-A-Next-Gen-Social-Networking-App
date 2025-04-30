@@ -20,3 +20,5 @@ Future<XFile?> pickImage() async {
   final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
   return image;
 }
+
+

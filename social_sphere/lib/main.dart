@@ -10,6 +10,7 @@ import 'package:routemaster/routemaster.dart';
 import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -17,6 +18,9 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+    timeago.setLocaleMessages('en', timeago.EnMessages());
+
 
   runApp(const ProviderScope(child: MyApp()));
 }
