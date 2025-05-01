@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 class Post {
+  final bool isAnonymous;
   final String id;
   final String title;
   final String? link;
@@ -16,6 +17,7 @@ class Post {
   final DateTime createdAt;
   final List<String> awards;
   Post({
+    required this.isAnonymous,
     required this.id,
     required this.title,
     this.link,
@@ -49,6 +51,7 @@ class Post {
     List<String>? awards,
   }) {
     return Post(
+      isAnonymous: isAnonymous,
       id: id ?? this.id,
       title: title ?? this.title,
       link: link ?? this.link,
@@ -68,6 +71,7 @@ class Post {
 
   Map<String, dynamic> toMap() {
     return {
+      'isAnonymous': isAnonymous,
       'id': id,
       'title': title,
       'link': link,
@@ -87,6 +91,7 @@ class Post {
 
   factory Post.fromMap(Map<String, dynamic> map) {
     return Post(
+      isAnonymous: map['isAnonymous'] ?? false,
       id: map['id'] ?? '',
       title: map['title'] ?? '',
       link: map['link'],
@@ -106,7 +111,7 @@ class Post {
 
   @override
   String toString() {
-    return 'Post(id: $id, title: $title, link: $link, description: $description, communityName: $communityName, communityProfilePic: $communityProfilePic, upvotes: $upvotes, downvotes: $downvotes, commentCount: $commentCount, username: $username, uid: $uid, type: $type, createdAt: $createdAt, awards: $awards)';
+    return 'Post(isAnonymous: $isAnonymous,id: $id, title: $title, link: $link, description: $description, communityName: $communityName, communityProfilePic: $communityProfilePic, upvotes: $upvotes, downvotes: $downvotes, commentCount: $commentCount, username: $username, uid: $uid, type: $type, createdAt: $createdAt, awards: $awards)';
   }
 
   @override
@@ -114,6 +119,7 @@ class Post {
     if (identical(this, other)) return true;
 
     return other is Post &&
+        other.isAnonymous == isAnonymous &&
         other.id == id &&
         other.title == title &&
         other.link == link &&
@@ -132,7 +138,8 @@ class Post {
 
   @override
   int get hashCode {
-    return id.hashCode ^
+    return isAnonymous.hashCode ^
+        id.hashCode ^
         title.hashCode ^
         link.hashCode ^
         description.hashCode ^

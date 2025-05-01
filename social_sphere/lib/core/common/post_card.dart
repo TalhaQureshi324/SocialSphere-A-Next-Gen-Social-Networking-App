@@ -662,9 +662,15 @@ class PostCard extends ConsumerWidget {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => navigateToUser(context),
+                              //onTap: () => navigateToUser(context),
+                              onTap:
+                                  post.isAnonymous
+                                      ? null
+                                      : () => navigateToUser(context),
                               child: Text(
-                                'Posted by ${post.username}',
+                                post.isAnonymous
+                                    ? 'Posted by Anonymous'
+                                    : 'Posted by ${post.username}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color:

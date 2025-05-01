@@ -51,8 +51,6 @@ final getPostCommentsProvider = StreamProvider.family((ref, String postId) {
   return postController.fetchPostComments(postId);
 });
 
-
-
 class PostController extends StateNotifier<bool> {
   final PostRepository _postRepository;
   final Ref _ref;
@@ -67,7 +65,10 @@ class PostController extends StateNotifier<bool> {
        super(false);
 
   // Add this new method to create notifications
-  Future<void> _createNotificationsForPost(Post post, Community community) async {
+  Future<void> _createNotificationsForPost(
+    Post post,
+    Community community,
+  ) async {
     final notificationRepository = _ref.read(notificationRepositoryProvider);
     final user = _ref.read(userProvider)!;
 
@@ -101,12 +102,14 @@ class PostController extends StateNotifier<bool> {
     required String title,
     required Community selectedCommunity,
     required String description,
+    required bool isAnonymous,
   }) async {
     state = true;
     String postId = const Uuid().v1();
     final user = _ref.read(userProvider)!;
 
     final Post post = Post(
+      isAnonymous: isAnonymous,
       id: postId,
       title: title,
       communityName: selectedCommunity.name,
@@ -129,7 +132,7 @@ class PostController extends StateNotifier<bool> {
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) async {
       await _createNotificationsForPost(post, selectedCommunity);
-      showSnackBar(context, 'Posted successfully!');
+      showSnackBar2('Posted successfully!');
       Routemaster.of(context).pop();
     });
   }
@@ -140,12 +143,14 @@ class PostController extends StateNotifier<bool> {
     required String title,
     required Community selectedCommunity,
     required String link,
+    required bool isAnonymous,
   }) async {
     state = true;
     String postId = const Uuid().v1();
     final user = _ref.read(userProvider)!;
 
     final Post post = Post(
+      isAnonymous: isAnonymous,
       id: postId,
       title: title,
       communityName: selectedCommunity.name,
@@ -180,6 +185,7 @@ class PostController extends StateNotifier<bool> {
     required Community selectedCommunity,
     required File? file,
     required Uint8List? webFile,
+    required bool isAnonymous,
   }) async {
     state = true;
     String postId = const Uuid().v1();
@@ -193,6 +199,7 @@ class PostController extends StateNotifier<bool> {
 
     imageRes.fold((l) => showSnackBar(context, l.message), (r) async {
       final Post post = Post(
+        isAnonymous: isAnonymous,
         id: postId,
         title: title,
         communityName: selectedCommunity.name,
@@ -221,59 +228,56 @@ class PostController extends StateNotifier<bool> {
     });
   }
 
-
-
   // Add new method
-void shareVideoPost({
-  required BuildContext context,
-  required String title,
-  required Community selectedCommunity,
-  required File? file,
-  required Uint8List? webFile,
-}) async {
-  state = true;
-  String postId = const Uuid().v1();
-  final user = _ref.read(userProvider)!;
-  
-  final videoRes = await _storageRepository.storeFile(
-    path: 'posts/${selectedCommunity.name}/videos',
-    id: postId,
-    file: file,
-    webFile: webFile,
-  );
+  void shareVideoPost({
+    required BuildContext context,
+    required String title,
+    required Community selectedCommunity,
+    required File? file,
+    required Uint8List? webFile,
+    required bool isAnonymous,
+  }) async {
+    state = true;
+    String postId = const Uuid().v1();
+    final user = _ref.read(userProvider)!;
 
-  videoRes.fold((l) => showSnackBar(context, l.message), (r) async {
-    final Post post = Post(
+    final videoRes = await _storageRepository.storeFile(
+      path: 'posts/${selectedCommunity.name}/videos',
       id: postId,
-      title: title,
-      communityName: selectedCommunity.name,
-      communityProfilePic: selectedCommunity.avatar,
-      upvotes: [],
-      downvotes: [],
-      commentCount: 0,
-      username: user.username,
-      uid: user.uid,
-      type: 'video',
-      createdAt: DateTime.now(),
-      awards: [],
-      link: r, // Store video URL in existing link field
+      file: file,
+      webFile: webFile,
     );
 
-    final res = await _postRepository.addPost(post);
-    _ref
-        .read(userProfileControllerProvider.notifier)
-        .updateUserKarma(UserKarma.videoPost);
-    state = false;
-    res.fold((l) => showSnackBar(context, l.message), (r) async {
-      await _createNotificationsForPost(post, selectedCommunity);
-      showSnackBar(context, 'Video posted successfully!');
-      Routemaster.of(context).pop();
+    videoRes.fold((l) => showSnackBar(context, l.message), (r) async {
+      final Post post = Post(
+        isAnonymous: isAnonymous,
+        id: postId,
+        title: title,
+        communityName: selectedCommunity.name,
+        communityProfilePic: selectedCommunity.avatar,
+        upvotes: [],
+        downvotes: [],
+        commentCount: 0,
+        username: user.username,
+        uid: user.uid,
+        type: 'video',
+        createdAt: DateTime.now(),
+        awards: [],
+        link: r, // Store video URL in existing link field
+      );
+
+      final res = await _postRepository.addPost(post);
+      _ref
+          .read(userProfileControllerProvider.notifier)
+          .updateUserKarma(UserKarma.videoPost);
+      state = false;
+      res.fold((l) => showSnackBar(context, l.message), (r) async {
+        await _createNotificationsForPost(post, selectedCommunity);
+        showSnackBar(context, 'Video posted successfully!');
+        Routemaster.of(context).pop();
+      });
     });
-  });
-}
-
-
-
+  }
 
   Stream<List<Post>> fetchUserPosts(List<Community> communities) {
     if (communities.isNotEmpty) {

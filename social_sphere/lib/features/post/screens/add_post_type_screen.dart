@@ -454,6 +454,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
   Uint8List? videoThumbnail; // Added for video thumbnails
   List<Community> communities = [];
   Community? selectedCommunity;
+  bool isAnonymous = false;
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -524,6 +525,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
               selectedCommunity: selectedCommunity ?? communities[0],
               file: bannerFile,
               webFile: bannerWebFile,
+              isAnonymous: isAnonymous, // Added
             );
       } else {
         ref
@@ -534,6 +536,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
               selectedCommunity: selectedCommunity ?? communities[0],
               file: bannerFile,
               webFile: bannerWebFile,
+              isAnonymous: isAnonymous, // Added
             );
       }
     } else if (widget.type == 'text' && titleController.text.isNotEmpty) {
@@ -544,6 +547,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
             title: titleController.text.trim(),
             selectedCommunity: selectedCommunity ?? communities[0],
             description: descriptionController.text.trim(),
+            isAnonymous: isAnonymous, // Added
           );
     } else if (widget.type == 'link' &&
         titleController.text.isNotEmpty &&
@@ -555,6 +559,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
             title: titleController.text.trim(),
             selectedCommunity: selectedCommunity ?? communities[0],
             link: linkController.text.trim(),
+            isAnonymous: isAnonymous, // Added
           );
     } else {
       showSnackBar(context, 'Please fill all required fields');
@@ -636,6 +641,22 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                         style: const TextStyle(fontSize: 18),
                         maxLength: 30,
                       ),
+
+                      const SizedBox(height: 12),
+                      // Added Anonymous Toggle
+                      SwitchListTile(
+                        title: Text(
+                          'Post Anonymously',
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        value: isAnonymous,
+                        activeColor: Pallete.blueColor,
+                        onChanged:
+                            (value) => setState(() => isAnonymous = value),
+                      ),
+
                       const SizedBox(height: 20),
                       if (isTypeMedia) _buildMediaUploadSection(currentTheme),
                       if (isTypeText) _buildDescriptionField(currentTheme),
