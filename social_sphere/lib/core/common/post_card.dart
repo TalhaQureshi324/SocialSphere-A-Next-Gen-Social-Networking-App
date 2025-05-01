@@ -9,7 +9,8 @@ import 'package:social_sphere/models/post_model.dart';
 import 'package:social_sphere/responsive/responsive.dart';
 import 'package:social_sphere/theme/pallete.dart';
 import 'package:routemaster/routemaster.dart';
-
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
 // class PostCard extends ConsumerWidget {
 //   final Post post;
@@ -752,6 +753,9 @@ class PostCard extends ConsumerWidget {
                               height: MediaQuery.of(context).size.height * 0.35,
                             ),
                           ),
+                        if (post.type == 'video')
+                          _VideoPlayerWidget(videoUrl: post.link!),
+
                         if (post.type == 'link')
                           Padding(
                             padding: const EdgeInsets.only(top: 8),
@@ -1066,5 +1070,57 @@ class PostCard extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class _VideoPlayerWidget extends StatefulWidget {
+  final String videoUrl;
+  const _VideoPlayerWidget({required this.videoUrl});
+
+  @override
+  State<_VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+}
+
+class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
+  late VideoPlayerController _videoController;
+  late ChewieController _chewieController;
+
+  @override
+  void initState() {
+    super.initState();
+    _videoController = VideoPlayerController.network(widget.videoUrl)
+      ..initialize().then((_) {
+        setState(() {});
+      });
+
+    _chewieController = ChewieController(
+      videoPlayerController: _videoController,
+      autoPlay: false,
+      looping: false,
+      allowFullScreen: true,
+      showControls: true,
+      materialProgressColors: ChewieProgressColors(
+        playedColor: Pallete.blueColor,
+        handleColor: Pallete.blueColor,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: AspectRatio(
+        aspectRatio: _videoController.value.aspectRatio,
+        child: Chewie(controller: _chewieController),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _videoController.dispose();
+    _chewieController.dispose();
+    super.dispose();
   }
 }

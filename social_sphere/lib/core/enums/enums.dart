@@ -5,6 +5,7 @@ enum UserKarma {
   textPost(2),
   linkPost(3),
   imagePost(3),
+  videoPost(4),
   awardPost(5),
   deletePost(-1);
 

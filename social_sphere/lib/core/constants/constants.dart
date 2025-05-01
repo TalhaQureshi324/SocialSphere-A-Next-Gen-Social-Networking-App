@@ -40,3 +40,10 @@ class Constants {
     'til': '${Constants.awardsPath}/til.png',
   };
 }
+
+class PostTypes {
+  static const text = 'text';
+  static const image = 'image';
+  static const link = 'link';
+  static const video = 'video';
+}

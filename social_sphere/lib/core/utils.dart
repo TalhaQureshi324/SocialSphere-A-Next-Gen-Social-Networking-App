@@ -21,4 +21,7 @@ Future<XFile?> pickImage() async {
   return image;
 }
 
-
+Future<XFile?> pickVideo() async {
+  final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
+  return video;
+}

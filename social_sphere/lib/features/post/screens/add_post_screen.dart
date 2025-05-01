@@ -54,6 +54,17 @@ class AddPostScreen extends ConsumerWidget {
                 const SizedBox(height: 20),
                 _buildPostTypeCard(
                   context: context,
+                  icon: Icons.video_call_sharp,
+                  label: 'Video Post',
+                  description: 'Share Video',
+                  type: 'video',
+                  theme: currentTheme,
+                  isDark: isDark,
+                  isWeb: isWeb,
+                ),
+                const SizedBox(height: 20),
+                _buildPostTypeCard(
+                  context: context,
                   icon: Icons.font_download_outlined,
                   label: 'Text Post',
                   description: 'Write your thoughts',
