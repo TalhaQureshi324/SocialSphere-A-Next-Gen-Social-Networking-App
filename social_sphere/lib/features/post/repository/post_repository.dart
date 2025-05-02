@@ -133,9 +133,24 @@ class PostRepository {
     }
   }
 
+  // Stream<List<Comment>> getCommentsOfPost(String postId) {
+  //   return _comments
+  //       .where('postId', isEqualTo: postId)
+  //       .orderBy('createdAt', descending: true)
+  //       .snapshots()
+  //       .map(
+  //         (event) =>
+  //             event.docs
+  //                 .map((e) => Comment.fromMap(e.data() as Map<String, dynamic>))
+  //                 .toList(),
+  //       );
+  // }
+
+  // In PostRepository
   Stream<List<Comment>> getCommentsOfPost(String postId) {
     return _comments
         .where('postId', isEqualTo: postId)
+        .where('parentCommentId', isEqualTo: null) // Only top-level comments
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(
@@ -164,5 +179,33 @@ class PostRepository {
     } catch (e) {
       return left(Failure(e.toString()));
     }
+  }
+
+  FutureVoid addReplyToParent(String parentId, String replyId) async {
+    try {
+      return right(
+        await _comments.doc(parentId).update({
+          'replies': FieldValue.arrayUnion([replyId]),
+        }),
+      );
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  Stream<List<Comment>> getReplies(String commentId) {
+    return _comments
+        .where('parentCommentId', isEqualTo: commentId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs
+                  .map(
+                    (doc) =>
+                        Comment.fromMap(doc.data() as Map<String, dynamic>),
+                  )
+                  .toList(),
+        );
   }
 }

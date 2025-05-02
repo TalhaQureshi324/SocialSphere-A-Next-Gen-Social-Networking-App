@@ -315,13 +315,43 @@ class PostController extends StateNotifier<bool> {
     return _postRepository.getPostById(postId);
   }
 
+  // void addComment({
+  //   required BuildContext context,
+  //   required String text,
+  //   required Post post,
+  //   String? parentCommentId, // Add this parameter
+  // }) async {
+  //   final user = _ref.read(userProvider)!;
+  //   String commentId = const Uuid().v1();
+  //   Comment comment = Comment(
+  //     id: commentId,
+  //     text: text,
+  //     createdAt: DateTime.now(),
+  //     postId: post.id,
+  //     username: user.username,
+  //     profilePic: user.profilePic,
+  //     parentCommentId: parentCommentId, // Set parent ID
+  //   );
+  //   if (text.isEmpty) {
+  //     showSnackBar(context, 'Comment cannot be empty');
+  //     return;
+  //   }
+  //   final res = await _postRepository.addComment(comment);
+  //   _ref
+  //       .read(userProfileControllerProvider.notifier)
+  //       .updateUserKarma(UserKarma.comment);
+  //   res.fold((l) => showSnackBar(context, l.message), (r) => null);
+  // }
+
   void addComment({
     required BuildContext context,
     required String text,
     required Post post,
+    String? parentCommentId, // Add this parameter
   }) async {
     final user = _ref.read(userProvider)!;
     String commentId = const Uuid().v1();
+
     Comment comment = Comment(
       id: commentId,
       text: text,
@@ -329,16 +359,25 @@ class PostController extends StateNotifier<bool> {
       postId: post.id,
       username: user.username,
       profilePic: user.profilePic,
+      parentCommentId: parentCommentId, // Set parent ID
     );
+
     if (text.isEmpty) {
       showSnackBar(context, 'Comment cannot be empty');
       return;
     }
+
     final res = await _postRepository.addComment(comment);
-    _ref
-        .read(userProfileControllerProvider.notifier)
-        .updateUserKarma(UserKarma.comment);
-    res.fold((l) => showSnackBar(context, l.message), (r) => null);
+    res.fold((l) => showSnackBar(context, l.message), (r) {
+      _ref
+          .read(userProfileControllerProvider.notifier)
+          .updateUserKarma(UserKarma.comment);
+
+      // Only show success for top-level comments
+      if (parentCommentId == null) {
+        showSnackBar(context, 'Comment added');
+      }
+    });
   }
 
   void awardPost({
@@ -364,5 +403,47 @@ class PostController extends StateNotifier<bool> {
 
   Stream<List<Comment>> fetchPostComments(String postId) {
     return _postRepository.getCommentsOfPost(postId);
+  }
+
+  // New method for replies
+  void addReply({
+    required BuildContext context,
+    required String text,
+    required Comment parentComment,
+  }) async {
+    final user = _ref.read(userProvider)!;
+    String commentId = const Uuid().v1();
+
+    // Create reply comment
+    Comment reply = Comment(
+      id: commentId,
+      text: text,
+      createdAt: DateTime.now(),
+      postId: parentComment.postId,
+      username: user.username,
+      profilePic: user.profilePic,
+      parentCommentId: parentComment.id,
+    );
+
+    // Add reply to Firestore
+    final commentRes = await _postRepository.addComment(reply);
+
+    commentRes.fold((l) => showSnackBar(context, l.message), (r) async {
+      // Update parent comment's replies list
+      final updateRes = await _postRepository.addReplyToParent(
+        parentComment.id,
+        commentId,
+      );
+
+      updateRes.fold(
+        (l) => showSnackBar(context, 'Failed to add reply'),
+        (r) => showSnackBar(context, 'Reply added'),
+      );
+    });
+  }
+
+  // New method to fetch replies
+  Stream<List<Comment>> getReplies(String commentId) {
+    return _postRepository.getReplies(commentId);
   }
 }
