@@ -135,6 +135,8 @@ class _ProfileHeader extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                // Add this in your user profile header section
+
                 // Profile Picture
                 Container(
                   decoration: BoxDecoration(
@@ -170,7 +172,7 @@ class _ProfileHeader extends ConsumerWidget {
                       Text(
                         '${user.name}',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color:
                               isDark
@@ -180,7 +182,7 @@ class _ProfileHeader extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'browsing ${user.karma} score',
+                        'browsing score ${user.karma}',
                         style: TextStyle(
                           fontSize: 14,
                           color:
@@ -192,6 +194,16 @@ class _ProfileHeader extends ConsumerWidget {
                     ],
                   ),
                 ),
+
+                if (!isCurrentUser)
+                  // In the _ProfileHeader widget's trailing section
+                  if (!isCurrentUser)
+                    IconButton(
+                      onPressed:
+                          () =>
+                              Routemaster.of(context).push('/chat/${user.uid}'),
+                      icon: const Icon(Icons.chat),
+                    ),
 
                 // Edit Profile Button (only visible for current user)
                 if (isCurrentUser)

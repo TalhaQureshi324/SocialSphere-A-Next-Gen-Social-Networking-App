@@ -1,4 +1,4 @@
-// features/notification/controller/notification_controller.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_sphere/core/utils.dart';
@@ -8,38 +8,53 @@ import 'package:social_sphere/features/notification/repository/notification_repo
 
 final notificationControllerProvider =
     StateNotifierProvider<NotificationController, bool>((ref) {
-      return NotificationController(
-        notificationRepository: ref.watch(notificationRepositoryProvider),
-        ref: ref,
-      );
-    });
-
-final userNotificationsProvider = StreamProvider((ref) {
-  final user = ref.watch(userProvider);
-  if (user == null) return Stream.value([]);
-  return ref
-      .watch(notificationControllerProvider.notifier)
-      .getUserNotifications(user.uid);
+  return NotificationController(
+    notificationRepository: ref.watch(notificationRepositoryProvider),
+    ref: ref,
+  );
 });
 
+// ... keep other providers the same ...
+
 class NotificationController extends StateNotifier<bool> {
-  final NotificationRepository _notificationRepository;
+  final NotificationRepository _repository;
   final Ref _ref;
+
   NotificationController({
     required NotificationRepository notificationRepository,
     required Ref ref,
-  }) : _notificationRepository = notificationRepository,
+  }) : _repository = notificationRepository,
        _ref = ref,
-       super(false); // Loading state
+       super(false);
 
-  Stream<List<NotificationModel>> getUserNotifications(String userId) {
-    return _notificationRepository.getUserNotifications(userId);
+  // Mark single notification as read
+  Future<void> markAsRead(String notificationId, BuildContext context) async {
+    state = true;
+    final res = await _repository.markAsRead(notificationId);
+    state = false;
+    res.fold(
+      (l) => showSnackBar(context, l.message),
+      (r) => null,
+    );
   }
 
-  void markAsRead(String notificationId, BuildContext context) async {
+  // Mark all notifications as read
+  Future<void> markAllAsRead(BuildContext context) async {
     state = true;
-    final res = await _notificationRepository.markAsRead(notificationId);
+    final user = _ref.read(userProvider)!;
+    final notifications = await _repository.getUserNotifications(user.uid).first;
+    
+    final batch = FirebaseFirestore.instance.batch();
+    for (final notification in notifications.where((n) => !n.isRead)) {
+      // Access through public getter
+      batch.update(_repository.notifications.doc(notification.id), {'isRead': true});
+    }
+    
+    try {
+      await batch.commit();
+    } catch (e) {
+      showSnackBar(context, 'Error marking all as read');
+    }
     state = false;
-    res.fold((l) => showSnackBar(context, l.message), (r) => null);
   }
 }

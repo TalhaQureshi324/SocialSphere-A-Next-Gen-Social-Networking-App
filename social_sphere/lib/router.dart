@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:social_sphere/features/auth/screens/login_screen.dart';
+import 'package:social_sphere/features/chat/screens/chat_list_screen.dart';
+import 'package:social_sphere/features/chat/screens/chat_screen.dart';
 import 'package:social_sphere/features/community/screens/add_mods_screen.dart';
 import 'package:social_sphere/features/community/screens/community_screen.dart';
 import 'package:social_sphere/features/community/screens/create_community_screen.dart';
@@ -13,6 +16,7 @@ import 'package:social_sphere/features/user_profile/screens/edit_profile_screen.
 import 'package:social_sphere/features/user_profile/screens/user_profile_screen.dart';
 import 'package:social_sphere/features/notification/screens/notification_screen.dart';
 import 'package:routemaster/routemaster.dart';
+
 /// This file contains the route maps for the application.
 
 final loggedOutRoute = RouteMap(
@@ -59,12 +63,12 @@ final loggedInRoute = RouteMap(
     '/add-post': (routeData) => const MaterialPage(child: AddPostScreen()),
     // In loggedInRoute (router.dart)
     '/notifications': (_) => const MaterialPage(child: NotificationScreen()),
-    // Add this route
-    // '/r/:name/post/:postId':
-    //     (route) => MaterialPage(
-    //       child: PostScreen(
-    //         postId: route.pathParameters['postId']!,
-    //       ),
-    //     ),
+    // Add to loggedInRoute routes
+    // In loggedInRoute routes (router.dart)
+    '/chats': (_) => const MaterialPage(child: ChatListScreen()),
+    '/chat/:uid':
+        (route) => MaterialPage(
+          child: ChatScreen(receiverId: route.pathParameters['uid']!),
+        ),
   },
 );

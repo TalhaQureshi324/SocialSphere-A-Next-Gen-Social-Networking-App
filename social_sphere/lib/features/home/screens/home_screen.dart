@@ -206,7 +206,7 @@ import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:social_sphere/features/home/delegates/search_community_delegate.dart';
 import 'package:social_sphere/features/home/drawers/community_list_drawer.dart';
 import 'package:social_sphere/features/home/drawers/profile_drawer.dart';
-import 'package:social_sphere/features/notification/controller/notification_controller.dart';
+import 'package:social_sphere/features/notification/screens/notification_screen.dart';
 import 'package:social_sphere/theme/pallete.dart';
 import 'package:routemaster/routemaster.dart';
 
@@ -234,11 +234,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Row(
-          children: const [
+          children: [
             SizedBox(width: 0),
             Text(
               'Social Sphere',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const Spacer(),
+            IconButton(
+              icon: const Icon(Icons.chat),
+              onPressed: () => Routemaster.of(context).push('/chats'),
             ),
           ],
         ),

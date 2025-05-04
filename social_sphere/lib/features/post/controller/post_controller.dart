@@ -76,6 +76,8 @@ class PostController extends StateNotifier<bool> {
       if (memberId == user.uid) continue; // Skip post author
 
       final notification = NotificationModel(
+        
+        type: NotificationType.post,
         id: const Uuid().v1(),
         userId: memberId,
         communityId: community.id,
