@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_sphere/core/utils.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
-import 'package:social_sphere/models/notification_model.dart';
 import 'package:social_sphere/features/notification/repository/notification_repository.dart';
 
 final notificationControllerProvider =

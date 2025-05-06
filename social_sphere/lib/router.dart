@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:social_sphere/features/auth/screens/login_screen.dart';
 import 'package:social_sphere/features/chat/screens/chat_list_screen.dart';
 import 'package:social_sphere/features/chat/screens/chat_screen.dart';
