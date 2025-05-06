@@ -68,6 +68,7 @@ class CommunityController extends StateNotifier<bool> {
       avatar: Constants.avatarDefault,
       members: [uid],
       mods: [uid],
+      creatorUid: uid,
     );
     if (name.isEmpty || name.contains(" ")) {
       showSnackBar(context, "Please enter a valid group name without spaces");
@@ -187,7 +188,14 @@ class CommunityController extends StateNotifier<bool> {
     List<String> uids,
     BuildContext context,
   ) async {
-    final res = await _communityRepository.addMods(communityName, uids);
+    // Get current community data
+    final communityAsync =
+        await _communityRepository.getCommunityByName(communityName).first;
+
+    // Ensure creator is always in mods list
+    final enforcedMods = {...uids, communityAsync.creatorUid}.toList();
+
+    final res = await _communityRepository.addMods(communityName, enforcedMods);
     res.fold(
       (l) {
         showSnackBar(context, l.message);

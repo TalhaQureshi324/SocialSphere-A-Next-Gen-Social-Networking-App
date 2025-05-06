@@ -122,7 +122,16 @@ class CommunityRepository {
 
   FutureVoid addMods(String communityName, List<String> uids) async {
     try {
-      return right(_communities.doc(communityName).update({'mods': uids}));
+      // Get current community data for double validation
+      final communityDoc = await _communities.doc(communityName).get();
+      final community = Community.fromMap(
+        communityDoc.data() as Map<String, dynamic>,
+      );
+
+      // Final safety check (redundant but secure)
+      final finalMods = {...uids, community.creatorUid}.toList();
+
+      return right(_communities.doc(communityName).update({'mods': finalMods}));
     } on FirebaseException catch (e) {
       throw e.message!;
     } catch (e) {

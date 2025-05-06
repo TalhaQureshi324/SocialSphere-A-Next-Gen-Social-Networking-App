@@ -8,6 +8,8 @@ class Community {
   final String avatar;
   final List<String> members;
   final List<String> mods;
+  final String creatorUid; // Add this line
+
   Community({
     required this.id,
     required this.name,
@@ -15,6 +17,7 @@ class Community {
     required this.avatar,
     required this.members,
     required this.mods,
+    required this.creatorUid, // Add this line
   });
 
   Community copyWith({
@@ -24,6 +27,7 @@ class Community {
     String? avatar,
     List<String>? members,
     List<String>? mods,
+    String? creatorUid, // Add this line
   }) {
     return Community(
       id: id ?? this.id,
@@ -32,6 +36,7 @@ class Community {
       avatar: avatar ?? this.avatar,
       members: members ?? this.members,
       mods: mods ?? this.mods,
+      creatorUid: creatorUid ?? this.creatorUid, // Add this line
     );
   }
 
@@ -43,6 +48,7 @@ class Community {
       'avatar': avatar,
       'members': members,
       'mods': mods,
+      'creatorUid': creatorUid, // Add this line
     };
   }
 
@@ -54,12 +60,13 @@ class Community {
       avatar: map['avatar'] ?? '',
       members: List<String>.from((map['members'])),
       mods: List<String>.from((map['mods'])),
+      creatorUid: map['creatorUid'] ?? '', // Add this line
     );
   }
 
   @override
   String toString() {
-    return 'Community(id: $id, name: $name, banner: $banner, avatar: $avatar, members: $members, mods: $mods)';
+    return 'Community(creatorUid: $creatorUid,id: $id, name: $name, banner: $banner, avatar: $avatar, members: $members, mods: $mods)';
   }
 
   @override
@@ -67,6 +74,7 @@ class Community {
     if (identical(this, other)) return true;
 
     return other is Community &&
+        other.creatorUid == creatorUid && // Add this line
         other.id == id &&
         other.name == name &&
         other.banner == banner &&
@@ -78,6 +86,7 @@ class Community {
   @override
   int get hashCode {
     return id.hashCode ^
+        creatorUid.hashCode ^ // Add this line
         name.hashCode ^
         banner.hashCode ^
         avatar.hashCode ^

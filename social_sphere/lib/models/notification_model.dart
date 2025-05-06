@@ -18,6 +18,7 @@ class NotificationModel {
   final String? messageText;
   final DateTime createdAt;
   final bool isRead;
+  final bool? isAnonymous; // NEW
 
   NotificationModel({
     required this.id,
@@ -32,6 +33,7 @@ class NotificationModel {
     this.senderId,
     this.senderName,
     this.messageText,
+    this.isAnonymous,
     required this.createdAt,
     required this.isRead,
   });
@@ -52,6 +54,7 @@ class NotificationModel {
     String? messageText,
     DateTime? createdAt,
     bool? isRead,
+    bool? isAnonymous,
   }) {
     return NotificationModel(
       id: id ?? this.id,
@@ -68,6 +71,7 @@ class NotificationModel {
       messageText: messageText ?? this.messageText,
       createdAt: createdAt ?? this.createdAt,
       isRead: isRead ?? this.isRead,
+      isAnonymous: isAnonymous ?? this.isAnonymous,
     );
   }
 
@@ -88,6 +92,7 @@ class NotificationModel {
       'messageText': messageText,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'isRead': isRead,
+      'isAnonymous': isAnonymous,
     };
   }
 
@@ -109,6 +114,7 @@ class NotificationModel {
       messageText: map['messageText'] as String?,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
       isRead: map['isRead'] as bool,
+      isAnonymous: map['isAnonymous'] as bool?,
     );
   }
 }

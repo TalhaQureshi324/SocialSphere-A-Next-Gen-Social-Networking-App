@@ -88,6 +88,7 @@ class PostController extends StateNotifier<bool> {
         authorName: post.username,
         createdAt: DateTime.now(),
         isRead: false,
+        isAnonymous: post.isAnonymous,
       );
 
       final res = await notificationRepository.createNotification(notification);

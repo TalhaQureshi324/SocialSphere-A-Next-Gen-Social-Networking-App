@@ -179,12 +179,15 @@ class NotificationCard extends StatelessWidget {
             TextSpan(
               children: [
                 TextSpan(
-                  text: 'by ${notification.authorName}\n',
+                  text: notification.isAnonymous == true
+                      ? 'by Anonymous user\n'
+                      : 'by ${notification.authorName}\n', 
+                  //'by ${notification.authorName}\n',
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 ),
                 TextSpan(
                   text: notification.postTitle!,
-                  style: const TextStyle(fontSize: 14, color: Colors.black),
+                  style: const TextStyle(fontSize: 14, color: Color.fromARGB(255, 255, 255, 255)),
                 ),
               ],
             ),
