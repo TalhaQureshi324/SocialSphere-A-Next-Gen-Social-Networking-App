@@ -19,24 +19,52 @@ class FeedScreen extends ConsumerStatefulWidget {
 class _FeedScreenState extends ConsumerState<FeedScreen> {
   final RefreshController _refreshController = RefreshController();
   final ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
 
   @override
   void dispose() {
     _refreshController.dispose();
+    _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     super.dispose();
   }
 
   Future<void> _onRefresh() async {
-    final user = ref.read(userProvider)!;
-    if (user.isAuthenticated) {
-      await ref.refresh(userCommunitiesProvider.future);
-      final communities = ref.read(userCommunitiesProvider).value ?? [];
-      await ref.refresh(userPostsProvider(communities).future);
-    } else {
-      await ref.refresh(guestPostsProvider.future);
+    try {
+      final user = ref.read(userProvider)!;
+      if (user.isAuthenticated) {
+        await ref.refresh(userCommunitiesProvider.future);
+        final communities = ref.read(userCommunitiesProvider).value ?? [];
+        await ref.refresh(userPostsProvider(communities).future);
+      } else {
+        await ref.refresh(guestPostsProvider.future);
+      }
+      _refreshController.refreshCompleted();
+    } catch (e) {
+      _refreshController.refreshFailed();
     }
-    _refreshController.refreshCompleted();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent &&
+        !_isLoadingMore) {
+      _loadMorePosts();
+    }
+  }
+
+  Future<void> _loadMorePosts() async {
+    if (_isLoadingMore) return;
+
+    setState(() => _isLoadingMore = true);
+    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    setState(() => _isLoadingMore = false);
   }
 
   @override
@@ -47,97 +75,116 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
     return Scaffold(
       backgroundColor: currentTheme.scaffoldBackgroundColor,
-      body: SafeArea(child: _buildFeedContent(isGuest, currentTheme)),
+      body: SafeArea(
+        child: RefreshConfiguration(
+          headerBuilder: () => ClassicHeader(
+            completeIcon: Icon(Icons.check, color: currentTheme.primaryColor),
+            idleIcon: Icon(Icons.arrow_downward, color: currentTheme.primaryColor),
+          ),
+          child: SmartRefresher(
+            controller: _refreshController,
+            onRefresh: _onRefresh,
+            enablePullDown: true,
+            header: ClassicHeader(
+              completeIcon: Icon(Icons.check, color: currentTheme.primaryColor),
+              idleIcon: Icon(Icons.arrow_downward, color: currentTheme.primaryColor),
+            ),
+            child: CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                      padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+                      child: Center(
+                          child: Text(
+                            'Your Feed',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black, // Use a fallback color
+                            ),
+                          ),
+                      ),
+                  ),
+                ),
+                _buildFeedContent(isGuest, currentTheme),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildFeedContent(bool isGuest, ThemeData theme) {
-    return isGuest ? _buildGuestFeed(theme) : _buildUserFeed(theme);
+    if (isGuest) {
+      return _buildGuestFeed(theme);
+    }
+    return _buildUserFeed(theme);
   }
 
   Widget _buildUserFeed(ThemeData theme) {
-    return ref
-        .watch(userCommunitiesProvider)
-        .when(
-          data: (communities) {
-            return ref
-                .watch(userPostsProvider(communities))
-                .when(
-                  data: (posts) {
-                    if (posts.isEmpty) {
-                      return _buildEmptyFeed(theme);
-                    }
-                    return SmartRefresher(
-                      controller: _refreshController,
-                      onRefresh: _onRefresh,
-                      enablePullDown: true,
-                      header: ClassicHeader(
-                        completeIcon: Icon(
-                          Icons.check,
-                          color: theme.primaryColor,
-                        ),
-                        idleIcon: Icon(
-                          Icons.arrow_downward,
-                          color: theme.primaryColor,
-                        ),
-                        textStyle: TextStyle(
-                          color: theme.textTheme.bodyLarge?.color,
-                        ),
-                      ),
-                      child: ListView.separated(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(12),
-                        itemCount: posts.length,
-                        separatorBuilder:
-                            (context, index) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          return PostCard(post: posts[index]);
-                        },
-                      ),
-                    );
-                  },
-                  error:
-                      (error, stackTrace) => ErrorText(error: error.toString()),
-                  loading: () => const Loader(),
-                );
-          },
-          error: (error, stackTrace) => ErrorText(error: error.toString()),
-          loading: () => const Loader(),
-        );
-  }
-
-  Widget _buildGuestFeed(ThemeData theme) {
-    return ref
-        .watch(guestPostsProvider)
-        .when(
+    return ref.watch(userCommunitiesProvider).when(
+      loading: () => const SliverFillRemaining(child: Loader()),
+      error: (error, stackTrace) => SliverToBoxAdapter(
+        child: ErrorText(error: error.toString()),
+      ),
+      data: (communities) {
+        return ref.watch(userPostsProvider(communities)).when(
+          loading: () => const SliverFillRemaining(child: Loader()),
+          error: (error, stackTrace) => SliverToBoxAdapter(
+            child: ErrorText(error: error.toString()),
+          ),
           data: (posts) {
             if (posts.isEmpty) {
-              return _buildEmptyFeed(theme);
+              return SliverFillRemaining(child: _buildEmptyFeed(theme));
             }
-            return SmartRefresher(
-              controller: _refreshController,
-              onRefresh: _onRefresh,
-              enablePullDown: true,
-              header: ClassicHeader(
-                completeIcon: Icon(Icons.check, color: theme.primaryColor),
-                idleIcon: Icon(Icons.arrow_downward, color: theme.primaryColor),
-                textStyle: TextStyle(color: theme.textTheme.bodyLarge?.color),
-              ),
-              child: ListView.separated(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(12),
-                itemCount: posts.length,
-                separatorBuilder:
-                    (context, index) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  return PostCard(post: posts[index]);
+            return SliverList(
+              delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                  if (index == posts.length) {
+                    return _buildLoadMoreIndicator();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: PostCard(post: posts[index]),
+                  );
                 },
+                childCount: posts.length + 1,
               ),
             );
           },
-          error: (error, stackTrace) => ErrorText(error: error.toString()),
-          loading: () => const Loader(),
         );
+      },
+    );
+  }
+
+  Widget _buildGuestFeed(ThemeData theme) {
+    return ref.watch(guestPostsProvider).when(
+      loading: () => const SliverFillRemaining(child: Loader()),
+      error: (error, stackTrace) => SliverToBoxAdapter(
+        child: ErrorText(error: error.toString()),
+      ),
+      data: (posts) {
+        if (posts.isEmpty) {
+          return SliverFillRemaining(child: _buildEmptyFeed(theme));
+        }
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+                (context, index) {
+              if (index == posts.length) {
+                return _buildLoadMoreIndicator();
+              }
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: PostCard(post: posts[index]),
+              );
+            },
+            childCount: posts.length + 1,
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildEmptyFeed(ThemeData theme) {
@@ -147,37 +194,62 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
         children: [
           Icon(
             Icons.feed_outlined,
-            size: 60,
-            color: theme.iconTheme.color?.withOpacity(0.5),
+            size: 80,
+            color: theme.iconTheme.color?.withOpacity(0.3),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           Text(
-            'No posts yet',
+            'Your feed is empty',
             style: TextStyle(
-              fontSize: 20,
-              color: theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: theme.textTheme.titleLarge?.color?.withOpacity(0.8),
             ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            'Join some groups or refresh to see posts',
-            style: TextStyle(
-              fontSize: 14,
-              color: theme.textTheme.bodyLarge?.color?.withOpacity(0.5),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              'Join communities to see posts in your feed, or refresh to check for new content',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: theme.textTheme.bodyLarge?.color?.withOpacity(0.6),
+              ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           ElevatedButton(
             onPressed: _onRefresh,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
+              backgroundColor: theme.primaryColor,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              elevation: 0,
+            ),
+            child: Text(
+              'Refresh Feed',
+              style: TextStyle(
+                color: theme.colorScheme.onPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
               ),
             ),
-            child: const Text('Refresh', style: TextStyle(color: Colors.white)),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Center(
+        child: _isLoadingMore
+            ? const CircularProgressIndicator()
+            : const SizedBox.shrink(),
       ),
     );
   }

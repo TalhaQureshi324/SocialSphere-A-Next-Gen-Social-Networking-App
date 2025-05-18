@@ -4,6 +4,7 @@ import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:social_sphere/features/chat/controller/chat_controller.dart';
 import 'package:social_sphere/models/chat_model.dart';
+import 'package:social_sphere/theme/pallete.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String receiverId;
@@ -66,6 +67,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentTheme = ref.watch(themeNotifierProvider);
+    final isDark = currentTheme.brightness == Brightness.dark;
     final currentUser = ref.watch(userProvider)!;
     final chatAsync = ref.watch(
       chatMessagesProvider((currentUser.uid, widget.receiverId)),
@@ -75,20 +78,43 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: otherUserAsync.when(
-          data:
-              (user) => Row(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(user.profilePic),
-                    radius: 16,
+          data: (user) => Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.blue.shade400,
+                      Colors.purple.shade600,
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Text(user.username),
-                ],
+                ),
+                child: CircleAvatar(
+                  radius: 16,
+                  backgroundImage: NetworkImage(user.profilePic),
+                ),
               ),
-          error: (error, _) => const Text('Error loading user'),
+              const SizedBox(width: 12),
+              Text(
+                user.username,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: currentTheme.textTheme.titleLarge?.color,
+                ),
+              ),
+            ],
+          ),
+          error: (error, _) => Text(
+            'Error',
+            style: TextStyle(color: currentTheme.textTheme.titleLarge?.color),
+          ),
           loading: () => const Loader(),
         ),
+        centerTitle: false,
+        elevation: 0,
+        iconTheme: IconThemeData(color: currentTheme.iconTheme.color),
       ),
       body: Column(
         children: [
@@ -96,22 +122,65 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             child: chatAsync.when(
               data: (messages) {
                 if (messages.isEmpty) {
-                  return const Center(child: Text('Start a conversation!'));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 48,
+                          color: currentTheme.iconTheme.color?.withOpacity(0.3),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Start a conversation!',
+                          style: currentTheme.textTheme.titleMedium?.copyWith(
+                            color: currentTheme.textTheme.titleMedium?.color
+                                ?.withOpacity(0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 }
                 WidgetsBinding.instance.addPostFrameCallback(
-                  (_) => _scrollToBottom(),
+                      (_) => _scrollToBottom(),
                 );
                 return ListView.builder(
                   controller: _scrollController,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
                     final isMe = message.senderId == currentUser.uid;
-                    return _ChatBubble(message: message, isMe: isMe);
+                    return _ChatBubble(
+                      message: message,
+                      isMe: isMe,
+                      theme: currentTheme,
+                    );
                   },
                 );
               },
-              error: (error, _) => Center(child: Text('Error: $error')),
+              error: (error, _) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Failed to load messages',
+                      style: currentTheme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: () => ref.refresh(
+                        chatMessagesProvider((currentUser.uid, widget.receiverId)),
+                      ),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
               loading: () => const Loader(),
             ),
           ),
@@ -122,12 +191,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ref
                   .read(chatControllerProvider.notifier)
                   .sendMessage(
-                    text: _messageController.text,
-                    receiverId: widget.receiverId,
-                    context: context,
-                  );
+                text: _messageController.text,
+                receiverId: widget.receiverId,
+                context: context,
+              );
               _messageController.clear();
             },
+            theme: currentTheme,
           ),
         ],
       ),
@@ -138,35 +208,59 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 class _ChatBubble extends StatelessWidget {
   final ChatModel message;
   final bool isMe;
+  final ThemeData theme;
 
-  const _ChatBubble({required this.message, required this.isMe});
+  const _ChatBubble({
+    required this.message,
+    required this.isMe,
+    required this.theme,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = theme.brightness == Brightness.dark;
+    final bubbleColor = isMe
+        ? (message.isRead ? Colors.blue.shade400 : Colors.blue.shade500)
+        : (isDark ? Colors.grey.shade800 : Colors.grey.shade200);
+
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+        constraints: const BoxConstraints(maxWidth: 300),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
-          color:
-              isMe
-                  ? (message.isRead ? Colors.blue[100] : Colors.blue[200])
-                  : Colors.grey[200],
-          borderRadius: BorderRadius.circular(20),
+          color: bubbleColor,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(20),
+            topRight: const Radius.circular(20),
+            bottomLeft: isMe ? const Radius.circular(20) : Radius.zero,
+            bottomRight: isMe ? Radius.zero : const Radius.circular(20),
+          ),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(message.text, style: const TextStyle(fontSize: 16, color: Colors.black)),
+            Text(
+              message.text,
+              style: TextStyle(
+                fontSize: 16,
+                color: isMe ? Colors.white : theme.textTheme.bodyLarge?.color,
+              ),
+            ),
             const SizedBox(height: 4),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   '${message.timestamp.hour.toString().padLeft(2, '0')}:'
-                  '${message.timestamp.minute.toString().padLeft(2, '0')}',
-                  style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                      '${message.timestamp.minute.toString().padLeft(2, '0')}',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: isMe
+                        ? Colors.white.withOpacity(0.7)
+                        : theme.textTheme.bodySmall?.color?.withOpacity(0.6),
+                  ),
                 ),
                 if (isMe)
                   Padding(
@@ -174,10 +268,9 @@ class _ChatBubble extends StatelessWidget {
                     child: Icon(
                       message.isRead ? Icons.done_all : Icons.done,
                       size: 12,
-                      color:
-                          message.isRead
-                              ? const Color.fromARGB(255, 218, 132, 3)
-                              : const Color.fromARGB(255, 43, 53, 44),
+                      color: isMe
+                          ? Colors.white.withOpacity(0.7)
+                          : theme.textTheme.bodySmall?.color?.withOpacity(0.6),
                     ),
                   ),
               ],
@@ -192,13 +285,29 @@ class _ChatBubble extends StatelessWidget {
 class _MessageInput extends StatelessWidget {
   final TextEditingController messageController;
   final VoidCallback onSend;
+  final ThemeData theme;
 
-  const _MessageInput({required this.messageController, required this.onSend});
+  const _MessageInput({
+    required this.messageController,
+    required this.onSend,
+    required this.theme,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
+        border: Border(
+          top: BorderSide(
+            color: theme.dividerColor.withOpacity(0.1),
+            width: 1,
+          ),
+        ),
+      ),
       child: Row(
         children: [
           Expanded(
@@ -206,17 +315,31 @@ class _MessageInput extends StatelessWidget {
               controller: messageController,
               decoration: InputDecoration(
                 hintText: 'Type a message...',
+                filled: true,
+                fillColor: isDark ? Colors.grey.shade800 : Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
               onSubmitted: (_) => onSend(),
             ),
           ),
           const SizedBox(width: 8),
-          CircleAvatar(
-            backgroundColor: Colors.blue,
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  Colors.blue.shade400,
+                  Colors.purple.shade600,
+                ],
+              ),
+            ),
             child: IconButton(
               icon: const Icon(Icons.send, color: Colors.white),
               onPressed: onSend,

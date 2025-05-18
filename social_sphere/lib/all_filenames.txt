@@ -1,0 +1,147 @@
+.:
+  extract_file.py
+  firebase_options.dart
+  main.dart
+  router.dart
+  txt
+
+core:
+  failure.dart
+  type_defs.dart
+  utils.dart
+
+core\common:
+  error_text.dart
+  js
+  loader.dart
+  notification_card.dart
+  offline_screen.dart
+  post_card.dart
+  sign_button.dart
+
+core\constants:
+  constants.dart
+  firebase_constants.dart
+  png
+
+core\enums:
+  enums.dart
+
+core\providers:
+  comment_provider.dart
+  connectivity_provider.dart
+  firebase_providers.dart
+  search_provider.dart
+  storage_repository_provider.dart
+
+features:
+
+features\auth:
+
+features\auth\controller:
+  auth_controller.dart
+
+features\auth\repository:
+  auth_repository.dart
+
+features\auth\screens:
+  login_screen.dart
+
+features\chat:
+
+features\chat\controller:
+  chat_controller.dart
+
+features\chat\repository:
+  chat_repository.dart
+
+features\chat\screens:
+  chat_list_screen.dart
+  chat_screen.dart
+
+features\community:
+
+features\community\controller:
+  community_controller.dart
+
+features\community\repository:
+  community_repository.dart
+
+features\community\screens:
+  add_mods_screen.dart
+  community_screen.dart
+  create_community_screen.dart
+  edit_community_screen.dart
+  mod_tools_screen.dart
+
+features\feed:
+  feed_screen.dart
+
+features\home:
+
+features\home\delegates:
+  search_community_delegate.dart
+
+features\home\drawers:
+  community_list_drawer.dart
+  profile_drawer.dart
+
+features\home\screens:
+  home_screen.dart
+
+features\notification:
+
+features\notification\controller:
+  notification_controller.dart
+
+features\notification\repository:
+  notification_repository.dart
+
+features\notification\screens:
+  notification_screen.dart
+
+features\post:
+
+features\post\controller:
+  post_controller.dart
+
+features\post\repository:
+  post_repository.dart
+
+features\post\screens:
+  JPEG
+  add_post_screen.dart
+  add_post_type_screen.dart
+  comments_screen.dart
+  post_screen.dart
+  reply_screen.dart
+
+features\post\widgets:
+  comment_card.dart
+
+features\user_profile:
+
+features\user_profile\controller:
+  user_profile_controller.dart
+
+features\user_profile\repository:
+  user_profile_repository.dart
+
+features\user_profile\screens:
+  edit_profile_screen.dart
+  user_profile_screen.dart
+
+models:
+  chat_model.dart
+  comment_model.dart
+  community_model.dart
+  notification_model.dart
+  post_model.dart
+  user_model.dart
+
+responsive:
+  responsive.dart
+
+theme:
+  pallete.dart
+

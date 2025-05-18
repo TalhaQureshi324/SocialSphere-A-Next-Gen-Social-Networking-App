@@ -288,10 +288,10 @@ class AuthRepository {
 
         // Safely get email
         email = userCredential.user?.email ?? '';
-        if (!email.endsWith('@gmail.com')) {
+        if (!email.endsWith('@gmail.com') && !email.endsWith('.pk')) {
           await _auth.signOut();
           return left(
-            Failure('Only company emails (@company.pk) are allowed.'),
+            Failure('Only @gmail.com or .pk emails are allowed.'),
           );
         }
       } else {
@@ -303,11 +303,11 @@ class AuthRepository {
 
         email = googleUser.email;
 
-        if (!email.endsWith('@gmail.com')) {
+        if (!email.endsWith('@gmail.com') && !email.endsWith('.pk')) {
           await _auth.signOut();
           await _googleSignIn.signOut();
           return left(
-            Failure('Only company emails (@company.pk) are allowed.'),
+            Failure('Only @gmail.com or .pk emails are allowed.'),
           );
         }
 

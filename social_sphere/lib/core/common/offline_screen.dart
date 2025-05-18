@@ -7,14 +7,23 @@ class OfflineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? colorScheme.surface : Colors.white,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
+            colors: isDark
+                ? [
+              colorScheme.surface,
+              Pallete.blueColor.withOpacity(0.1),
+            ]
+                : [
               Colors.white,
               Pallete.blueColor.withOpacity(0.1),
             ],
@@ -26,43 +35,43 @@ class OfflineScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Lottie animation (replace with your own asset if needed)
+                // Lottie animation with dark mode support
                 Lottie.asset(
-                  'assets/animations/no-internet.json', // Add this file to your assets
+                  'assets/animations/no-internet.json',
                   width: 250,
                   height: 250,
                   fit: BoxFit.contain,
                   repeat: true,
+                  frameRate: FrameRate(60),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 Text(
                   'Connection Lost',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: Pallete.blueColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 28,
-                      ),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: Pallete.blueColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 28,
+                  ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
                     'Oops! It seems you\'re offline. Please check your internet connection and try again.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[700],
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: isDark ? colorScheme.onSurfaceVariant : Colors.grey[700],
                       height: 1.5,
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Action buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -79,14 +88,16 @@ class OfflineScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
+                        elevation: 0,
+                        shadowColor: Colors.transparent,
                       ),
                       onPressed: () {
                         // Add retry logic here
                       },
                     ),
-                    
+
                     const SizedBox(width: 16),
-                    
+
                     // Help button
                     OutlinedButton.icon(
                       icon: const Icon(Icons.help_outline, size: 20),
@@ -106,45 +117,63 @@ class OfflineScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Troubleshooting tips
-                ExpansionTile(
-                  title: Text(
-                    'Troubleshooting Tips',
-                    style: TextStyle(
-                      color: Pallete.blueColor,
-                      fontWeight: FontWeight.w500,
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? colorScheme.surfaceContainerHigh
+                        : Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark
+                          ? colorScheme.outlineVariant.withOpacity(0.3)
+                          : Colors.grey[200]!,
                     ),
                   ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildTipItem(
-                            context,
-                            '1. Check your Wi-Fi or mobile data',
-                          ),
-                          _buildTipItem(
-                            context,
-                            '2. Restart your router',
-                          ),
-                          _buildTipItem(
-                            context,
-                            '3. Toggle airplane mode',
-                          ),
-                          _buildTipItem(
-                            context,
-                            '4. Move to a better signal area',
-                          ),
-                        ],
+                  child: ExpansionTile(
+                    title: Text(
+                      'Troubleshooting Tips',
+                      style: TextStyle(
+                        color: Pallete.blueColor,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ],
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildTipItem(
+                              context,
+                              '1. Check your Wi-Fi or mobile data',
+                              isDark: isDark,
+                            ),
+                            _buildTipItem(
+                              context,
+                              '2. Restart your router',
+                              isDark: isDark,
+                            ),
+                            _buildTipItem(
+                              context,
+                              '3. Toggle airplane mode',
+                              isDark: isDark,
+                            ),
+                            _buildTipItem(
+                              context,
+                              '4. Move to a better signal area',
+                              isDark: isDark,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -154,7 +183,8 @@ class OfflineScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTipItem(BuildContext context, String text) {
+  Widget _buildTipItem(BuildContext context, String text, {required bool isDark}) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -169,9 +199,10 @@ class OfflineScreen extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 14,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: isDark
+                    ? theme.colorScheme.onSurfaceVariant
+                    : Colors.grey[700],
               ),
             ),
           ),

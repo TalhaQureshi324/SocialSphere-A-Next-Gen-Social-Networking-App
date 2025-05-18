@@ -5,7 +5,7 @@ import 'package:social_sphere/core/common/sign_button.dart';
 import 'package:social_sphere/core/constants/constants.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:social_sphere/responsive/responsive.dart';
-//import 'package:social_sphere/theme/pallete.dart';
+import 'dart:ui';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
@@ -19,123 +19,335 @@ class LoginScreen extends ConsumerWidget {
     final isLoading = ref.watch(authControllerProvider);
     final size = MediaQuery.of(context).size;
     final theme = Theme.of(context);
-    //final currentTheme = ref.watch(themeNotifierProvider);
-    bool isDarkMode = theme.brightness == Brightness.dark;
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    // Enhanced color scheme with social/energetic vibe
+    final ColorScheme colorScheme = isDarkMode
+        ? const ColorScheme.dark(
+      primary: Color(0xFF9C27B0), // Vibrant purple
+      secondary: Color(0xFF00E5FF), // Cyan accent
+      surface: Color(0xFF121212),
+      background: Color(0xFF000000),
+    )
+        : const ColorScheme.light(
+      primary: Color(0xFF6200EE), // Deep purple
+      secondary: Color(0xFF03DAC6), // Teal accent
+      surface: Colors.white,
+      background: Color(0xFFF5F5F5),
+    );
 
     return Scaffold(
-      body:
-          isLoading
-              ? const Loader()
-              : Stack(
-                children: [
-                  // Background Gradient
-                  Container(
-                    decoration: const BoxDecoration(
+      body: isLoading
+          ? const Loader()
+          : Stack(
+        children: [
+          // Dynamic gradient background
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 800),
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                colors: isDarkMode
+                    ? [
+                  colorScheme.primary.withOpacity(0.2),
+                  colorScheme.background,
+                  Colors.black,
+                ]
+                    : [
+                  colorScheme.primary.withOpacity(0.1),
+                  colorScheme.background,
+                  Colors.white,
+                ],
+                center: Alignment.topRight,
+                radius: 1.5,
+                stops: const [0.1, 0.5, 1.0],
+              ),
+            ),
+          ),
+
+          // Animated floating particles
+          ..._buildFloatingParticles(size, colorScheme),
+
+          // App logo with subtle glow
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: EdgeInsets.only(top: size.height * 0.12),
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorScheme.primary.withOpacity(0.2),
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Hero(
+                  tag: 'app-logo',
+                  child: Image.asset(
+                    Constants.logopath,
+                    height: size.height * 0.33,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Glassmorphic card
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: double.infinity,
+              height: size.height * 0.5,
+              margin: const EdgeInsets.all(20),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isDarkMode
+                          ? Colors.black.withOpacity(0.4)
+                          : Colors.white.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 1,
+                      ),
                       gradient: LinearGradient(
-                        colors: [
-                          Color.fromARGB(255, 128, 129, 130),
-                          Color.fromARGB(255, 42, 20, 47),
-                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                      ),
-                    ),
-                  ),
-
-                  // Emote Image (floating)
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 0),
-                      child: Image.asset(
-                        Constants.logopath,
-                        height: size.height * 0.5,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-
-                  // Login Card
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      width: double.infinity,
-                      height: size.height * 0.55,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 30,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            isDarkMode
-                                ? const Color.fromARGB(255, 50, 50, 50)
-                                : const Color.fromARGB(255, 192, 190, 190),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color:
-                                isDarkMode
-                                    ? const Color.fromARGB(255, 176, 174, 174)
-                                    : const Color.fromARGB(255, 52, 51, 51),
-                            blurRadius: 20,
-                            offset: const Offset(0, -4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Welcome to Social Sphere",
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: theme.textTheme.bodyLarge?.color,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Connect. Share. Grow.",
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: theme.textTheme.bodyMedium?.color
-                                  ?.withOpacity(0.7),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 30),
-                          Responsive(child: const SignInButton()),
-                          const SizedBox(height: 20),
-                          GestureDetector(
-                            onTap: () => signInAsGuest(ref, context),
-                            child: Text(
-                              "Continue as Guest",
-                              style: const TextStyle(
-                                color: Colors.blue,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            "No account? No problem!",
-                            style: TextStyle(
-                              color: theme.textTheme.bodySmall?.color
-                                  ?.withOpacity(0.6),
-                              fontSize: 13,
-                            ),
-                          ),
+                        colors: [
+                          colorScheme.surface.withOpacity(0.6),
+                          colorScheme.surface.withOpacity(0.3),
                         ],
                       ),
                     ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 30,
+                    ),
+                    child: _buildCardContent(context, theme, colorScheme, ref),
                   ),
-                ],
+                ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildFloatingParticles(Size size, ColorScheme colorScheme) {
+    return [
+      // Primary color particles
+      _AnimatedParticle(
+        size: size,
+        color: colorScheme.primary.withOpacity(0.15),
+        duration: const Duration(seconds: 15),
+        begin: const Alignment(0.8, -0.6),
+        end: const Alignment(-0.8, 0.6),
+      ),
+      _AnimatedParticle(
+        size: size,
+        color: colorScheme.primary.withOpacity(0.1),
+        duration: const Duration(seconds: 20),
+        begin: const Alignment(-0.5, -0.7),
+        end: const Alignment(0.5, 0.7),
+      ),
+      // Secondary color particles
+      _AnimatedParticle(
+        size: size,
+        color: colorScheme.secondary.withOpacity(0.1),
+        duration: const Duration(seconds: 25),
+        begin: const Alignment(0.3, -0.8),
+        end: const Alignment(-0.3, 0.8),
+      ),
+    ];
+  }
+
+  Widget _buildCardContent(
+      BuildContext context,
+      ThemeData theme,
+      ColorScheme colorScheme,
+      WidgetRef ref,
+      ) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Welcome text with gradient
+        ShaderMask(
+          blendMode: BlendMode.srcIn,
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [
+              colorScheme.primary,
+              colorScheme.secondary,
+            ],
+          ).createShader(bounds),
+          child: Column(
+            children: [
+              Text(
+                "Welcome to",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+              Text(
+                "Social Sphere",
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Connect. Share. Grow.",
+          style: TextStyle(
+            fontSize: 16,
+            color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        const SizedBox(height: 40),
+        // Sign in button with subtle gradient
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            gradient: LinearGradient(
+              colors: [
+                colorScheme.primary,
+                colorScheme.secondary,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.primary.withOpacity(0.3),
+                blurRadius: 15,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: const Responsive(child: SignInButton()),
+        ),
+        const SizedBox(height: 30),
+        // Guest login option
+        Column(
+          children: [
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => signInAsGuest(ref, context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: colorScheme.secondary.withOpacity(0.5),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Text(
+                    "Continue as Guest",
+                    style: TextStyle(
+                      color: colorScheme.secondary.withOpacity(0.7),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "No account? No problem!",
+              style: TextStyle(
+                color: theme.textTheme.bodySmall?.color?.withOpacity(0.6),
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _AnimatedParticle extends StatefulWidget {
+  final Size size;
+  final Color color;
+  final Duration duration;
+  final Alignment begin;
+  final Alignment end;
+
+  const _AnimatedParticle({
+    required this.size,
+    required this.color,
+    required this.duration,
+    required this.begin,
+    required this.end,
+  });
+
+  @override
+  _AnimatedParticleState createState() => _AnimatedParticleState();
+}
+
+class _AnimatedParticleState extends State<_AnimatedParticle>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Alignment> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: widget.duration,
+      vsync: this,
+    )..repeat(reverse: true);
+    _animation = AlignmentTween(
+      begin: widget.begin,
+      end: widget.end,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Positioned.fill(
+          child: Align(
+            alignment: _animation.value,
+            child: Container(
+              width: widget.size.width * 0.3,
+              height: widget.size.width * 0.3,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: widget.color,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

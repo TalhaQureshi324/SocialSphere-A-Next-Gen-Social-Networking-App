@@ -14,76 +14,78 @@ class AddPostScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentTheme = ref.watch(themeNotifierProvider);
-    final bool isDark = currentTheme.brightness == Brightness.dark;
+    final colorScheme = currentTheme.colorScheme;
     final bool isWeb = kIsWeb;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Create New Post',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          'Choose post type',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+            letterSpacing: -0.5,
+          ),
         ),
         centerTitle: true,
         elevation: 0,
+        backgroundColor: colorScheme.surface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        surfaceTintColor: Colors.transparent,
       ),
       body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isWeb ? 150 : 20,
-              vertical: 20,
-            ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: isWeb ? 600 : double.infinity,
+            minHeight: MediaQuery.of(context).size.height,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Choose post type',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 16),
                 _buildPostTypeCard(
                   context: context,
                   icon: Icons.image_outlined,
                   label: 'Image Post',
                   description: 'Share photos or artwork',
                   type: 'image',
-                  theme: currentTheme,
-                  isDark: isDark,
-                  isWeb: isWeb,
+                  colorScheme: colorScheme,
+                  iconColor: Colors.blueAccent,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 _buildPostTypeCard(
                   context: context,
-                  icon: Icons.video_call_sharp,
+                  icon: Icons.video_camera_back_outlined,
                   label: 'Video Post',
-                  description: 'Share Video',
+                  description: 'Share videos or clips',
                   type: 'video',
-                  theme: currentTheme,
-                  isDark: isDark,
-                  isWeb: isWeb,
+                  colorScheme: colorScheme,
+                  iconColor: Colors.redAccent,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 _buildPostTypeCard(
                   context: context,
-                  icon: Icons.font_download_outlined,
+                  icon: Icons.text_fields_rounded,
                   label: 'Text Post',
                   description: 'Write your thoughts',
                   type: 'text',
-                  theme: currentTheme,
-                  isDark: isDark,
-                  isWeb: isWeb,
+                  colorScheme: colorScheme,
+                  iconColor: Colors.greenAccent,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 _buildPostTypeCard(
                   context: context,
-                  icon: Icons.link_outlined,
+                  icon: Icons.link_rounded,
                   label: 'Link Post',
                   description: 'Share interesting links',
                   type: 'link',
-                  theme: currentTheme,
-                  isDark: isDark,
-                  isWeb: isWeb,
+                  colorScheme: colorScheme,
+                  iconColor: Colors.purpleAccent,
                 ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -98,45 +100,44 @@ class AddPostScreen extends ConsumerWidget {
     required String label,
     required String description,
     required String type,
-    required ThemeData theme,
-    required bool isDark,
-    required bool isWeb,
+    required ColorScheme colorScheme,
+    required Color iconColor,
   }) {
-    return GestureDetector(
-      onTap: () => navigateToType(context, type),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(20),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => navigateToType(context, type),
+        splashFactory: InkRipple.splashFactory,
+        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+              (states) => states.contains(MaterialState.pressed)
+              ? colorScheme.primary.withOpacity(0.1)
+              : null,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color:
-                isDark
-                    ? Colors.grey.shade900.withOpacity(0.6)
-                    : Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
+              color: colorScheme.outlineVariant.withOpacity(0.5),
+              width: 1.2,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
           ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.blue.withOpacity(0.1),
+                  color: iconColor.withOpacity(0.15),
                 ),
-                child: Icon(icon, size: 30, color: Colors.blue),
+                child: Icon(
+                  icon,
+                  size: 26,
+                  color: iconColor,
+                ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 18),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,29 +145,28 @@ class AddPostScreen extends ConsumerWidget {
                     Text(
                       label,
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: theme.textTheme.bodyLarge?.color,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                        letterSpacing: -0.2,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       description,
                       style: TextStyle(
                         fontSize: 14,
-                        color:
-                            isDark
-                                ? Colors.grey.shade400
-                                : Colors.grey.shade600,
+                        color: colorScheme.onSurfaceVariant,
+                        height: 1.4,
                       ),
                     ),
                   ],
                 ),
               ),
               Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                Icons.chevron_right_rounded,
+                size: 26,
+                color: colorScheme.onSurfaceVariant.withOpacity(0.7),
               ),
             ],
           ),

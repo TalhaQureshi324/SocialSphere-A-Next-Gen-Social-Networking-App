@@ -81,10 +81,10 @@ class ProfileDrawer extends ConsumerWidget {
               // Logout Button
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                leading: const Icon(Icons.logout, color: Colors.blueAccent),
+                leading: const Icon(Icons.logout, color: Colors.redAccent),
                 title: const Text(
                   'Logout',
-                  style: TextStyle(fontSize: 16, color: Colors.blueAccent),
+                  style: TextStyle(fontSize: 16, color: Colors.redAccent),
                 ),
                 onTap: () => logOut(ref),
               ),

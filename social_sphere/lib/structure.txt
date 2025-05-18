@@ -1,0 +1,274 @@
+lib/
+├── app/                        # App-level configuration
+│   ├── router.dart             # App routing
+│   ├── theme/                  # Theme configuration
+│   │   └── pallete.dart        # Color palette
+│   └── firebase/               # Firebase configuration
+│       ├── firebase_options.dart
+│       └── constants.dart      # Firebase constants
+│
+├── core/                       # Core functionality
+│   ├── common/                 # Common widgets
+│   │   ├── widgets/            # Reusable widgets
+│   │   │   ├── buttons/
+│   │   │   │   └── sign_button.dart
+│   │   │   ├── cards/
+│   │   │   │   ├── notification_card.dart
+│   │   │   │   └── post_card.dart
+│   │   │   ├── comment_card.dart
+│   │   │   ├── error_text.dart
+│   │   │   └── loader.dart
+│   │   └── screens/
+│   │       └── offline_screen.dart
+│   │
+│   ├── utils/                  # Utilities
+│   │   ├── constants.dart      # App constants
+│   │   ├── enums.dart          # App enums
+│   │   ├── failure.dart        # Failure handling
+│   │   ├── type_defs.dart      # Type definitions
+│   │   └── responsive.dart     # Responsive design
+│   │
+│   └── providers/              # State providers
+│       ├── auth/
+│       │   ├── auth_provider.dart
+│       │   └── connectivity_provider.dart
+│       ├── community/
+│       │   └── community_provider.dart
+│       ├── post/
+│       │   ├── comment_provider.dart
+│       │   └── post_provider.dart
+│       └── storage_repository_provider.dart
+│
+├── features/                   # Feature modules
+│   ├── auth/                   # Authentication feature
+│   │   ├── controller/
+│   │   │   └── auth_controller.dart
+│   │   ├── repository/
+│   │   │   └── auth_repository.dart
+│   │   └── screens/
+│   │       └── login_screen.dart
+│   │
+│   ├── community/              # Community feature
+│   │   ├── controller/
+│   │   │   └── community_controller.dart
+│   │   ├── repository/
+│   │   │   └── community_repository.dart
+│   │   └── screens/
+│   │       ├── create_community_screen.dart
+│   │       ├── community_screen.dart
+│   │       ├── mod_tools/
+│   │       │   ├── add_mods_screen.dart
+│   │       │   └── edit_community_screen.dart
+│   │       └── mod_tools_screen.dart
+│   │
+│   ├── post/                   # Post feature
+│   │   ├── controller/
+│   │   │   └── post_controller.dart
+│   │   ├── repository/
+│   │   │   └── post_repository.dart
+│   │   ├── screens/
+│   │   │   ├── add_post/
+│   │   │   │   ├── add_post_screen.dart
+│   │   │   │   └── add_post_type_screen.dart
+│   │   │   ├── comments_screen.dart
+│   │   │   ├── post_screen.dart
+│   │   │   └── reply_screen.dart
+│   │   └── widgets/
+│   │       └── comment_card.dart
+│   │
+│   ├── user_profile/           # User profile feature
+│   │   ├── controller/
+│   │   │   └── user_profile_controller.dart
+│   │   ├── repository/
+│   │   │   └── user_profile_repository.dart
+│   │   └── screens/
+│   │       ├── edit_profile_screen.dart
+│   │       └── user_profile_screen.dart
+│   │
+│   ├── chat/                   # Chat feature
+│   │   ├── controller/
+│   │   │   └── chat_controller.dart
+│   │   ├── repository/
+│   │   │   └── chat_repository.dart
+│   │   └── screens/
+│   │       ├── chat_list_screen.dart
+│   │       └── chat_screen.dart
+│   │
+│   ├── notification/           # Notification feature
+│   │   ├── controller/
+│   │   │   └── notification_controller.dart
+│   │   ├── repository/
+│   │   │   └── notification_repository.dart
+│   │   └── screens/
+│   │       └── notification_screen.dart
+│   │
+│   └── home/                   # Home feature
+│       ├── delegates/
+│       │   └── search_community_delegate.dart
+│       ├── drawers/
+│       │   ├── community_list_drawer.dart
+│       │   └── profile_drawer.dart
+│       ├── screens/
+│       │   └── home_screen.dart
+│       └── feed_screen.dart
+│
+├── models/                     # Data models
+│   ├── user_model.dart
+│   ├── post_model.dart
+│   ├── comment_model.dart
+│   ├── community_model.dart
+│   ├── chat_model.dart
+│   └── notification_model.dart
+│
+└── main.dart                   # App entry point
+
+✅ Comprehensive List of UI/Interface Files in the Project
+
+Core UI Components (core/common/)
+
+Reusable widgets used across multiple parts of the app:
+
+* error_text.dart → Displays error messages
+* loader.dart → Shows a loading spinner
+* notification_card.dart → UI for notifications
+* post_card.dart → Card for displaying posts
+* sign_button.dart → Sign-in/Sign-up buttons
+* offline_screen.dart → No-internet/offline screen
+
+---
+
+Feature-Specific Screens (features/)
+
+Screens and pages for different app features:
+
+1. Auth (features/auth/screens/)
+
+* login\_screen.dart → Login page UI
+
+2. Chat (features/chat/screens/)
+
+* chat\_list\_screen.dart → Chat list page
+* chat\_screen.dart → Individual chat UI
+
+3. Community (features/community/screens/)
+
+* add\_mods\_screen.dart → Add moderators
+* community\_screen.dart → Community details page
+* create\_community\_screen.dart → Create community form
+* edit\_community\_screen.dart → Edit community UI
+* mod\_tools\_screen.dart → Moderator tools
+
+4. Home & Feed (features/home/ & features/feed/)
+
+* feed\_screen.dart → Main feed
+* home\_screen.dart → Home page layout
+* community\_list\_drawer.dart → Side drawer for communities
+* profile\_drawer.dart → Profile side panel
+
+5. Notifications (features/notification/screens/)
+
+* notification\_screen.dart → Notification list
+
+6. Post (features/post/screens/)
+
+* add\_post\_screen.dart → Post creation UI
+* add\_post\_type\_screen.dart → Post type selector
+* comments\_screen.dart → Comments section
+* post\_screen.dart → Single post view
+* reply\_screen.dart → Reply UI
+
+7. User Profile (features/user\_profile/screens/)
+
+* edit\_profile\_screen.dart → Edit profile page
+* user\_profile\_screen.dart → Profile page
+
+---
+
+App-Level UI (app/ & theme/)
+
+* router.dart → Navigation and routing logic
+* pallete.dart → Global theme, colors, fonts
+
+---
+
+UI Widgets (features/post/widgets/)
+
+* comment\_card.dart → Comment display card
+
+---
+
+Quick Summary: Key UI Files to Focus On
+
+If you're modifying visuals or layout:
+
+1. Screens (e.g., login\_screen.dart, feed\_screen.dart)
+2. Widgets/Cards (e.g., post\_card.dart, comment\_card.dart)
+3. Global Styles (pallete.dart)
+4. Drawers and Menus (community\_list\_drawer.dart, profile\_drawer.dart)
+
+For functional changes, explore relevant controller.dart files.
+
+---
+
+🎯 Critical UI Files by Redesign Goals
+
+1. For Core Layout & Theme Overhaul
+
+* theme/pallete.dart → Global colors, fonts, styles
+* app/router.dart → Screen transitions, routing logic
+* core/common/loader.dart → Customize loading spinners
+* core/common/offline\_screen.dart → Update offline error screen
+
+---
+
+2. For Home/Feed UI Revamp
+
+* features/feed/feed\_screen.dart → Feed layout (posts listing)
+* features/home/screens/home\_screen.dart → Home page (tabs, drawers)
+* features/home/drawers/community\_list\_drawer.dart → Communities side drawer
+* features/home/drawers/profile\_drawer.dart → Profile side panel
+* core/common/post\_card.dart → Post card design in feed
+
+---
+
+3. For Posts & Comments UI Redesign
+
+* features/post/screens/add\_post\_screen.dart → Post creation UI
+* features/post/screens/comments\_screen.dart → Comments layout
+* features/post/widgets/comment\_card.dart → Comment card
+* features/post/screens/reply\_screen.dart → Reply interface
+* core/common/post\_card.dart → Post card (used app-wide)
+
+---
+
+4. For Authentication Screens Update
+
+* features/auth/screens/login\_screen.dart → Login page
+* features/user\_profile/screens/user\_profile\_screen.dart → User profile page
+* features/user\_profile/screens/edit\_profile\_screen.dart → Edit profile page
+
+---
+
+5. For Chat & Notification Improvements
+
+* features/chat/screens/chat\_screen.dart → Chat UI (bubbles, input)
+* features/chat/screens/chat\_list\_screen.dart → Chat list
+* features/notification/screens/notification\_screen.dart → Notifications list
+* core/common/notification\_card.dart → Notification item design
+
+---
+
+6. For Community Management UI
+
+* features/community/screens/create\_community\_screen.dart → Community creation
+* features/community/screens/community\_screen.dart → Community page
+* features/community/screens/mod\_tools\_screen.dart → Moderator tools
+
+---
+
+Handy Tips for UI Changes
+
+1. Start with pallete.dart for global color and style tweaks.
+2. Focus on post\_card.dart & comment\_card.dart to adjust post/comment look.
+3. Edit individual screens (e.g., login\_screen.dart) for page-level layout changes.
+4. Use responsive.dart (found in core/utils/) for responsive design adjustments.

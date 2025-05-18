@@ -23,118 +23,215 @@ class CommunityListDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider)!;
-    final theme = ref.watch(themeNotifierProvider);
-    final isDark = theme.brightness == Brightness.dark;
     final isGuest = !user.isAuthenticated;
+    final theme = ref.watch(themeNotifierProvider);
+    final colorScheme = theme.colorScheme;
 
     return Drawer(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor, // Same as ProfileDrawer
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(16)),
+      ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Your Joined Groups',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: theme.textTheme.bodyLarge?.color,
+              // Header
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Text(
+                  'Your Groups',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.onSurface,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              isGuest
-                  ? const SignInButton()
-                  : ElevatedButton.icon(
+
+              // Create Community Button
+              if (!isGuest)
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.blue.shade400,
+                        Colors.purple.shade600,
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.blue.shade400.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2)),
+                    ],
+                  ),
+                  child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 45),
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      minimumSize: const Size(double.infinity, 50),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     onPressed: () => navigateToCreateCommunity(context),
-                    icon: const Icon(Icons.group_add_outlined, size: 30),
-                    label: const Text("Create a Group"),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.add, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Create Groups',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                ),
+              const SizedBox(height: 24),
+
+              // Divider
+              Divider(
+                color: colorScheme.outlineVariant,
+                height: 1,
+              ),
               const SizedBox(height: 16),
+
+              // Community List
               if (!isGuest)
                 Expanded(
-                  child: ref
-                      .watch(userCommunitiesProvider)
-                      .when(
-                        data: (communities) {
-                          if (communities.isEmpty) {
-                            return const Center(
-                              child: Text("You're not part of any group yet."),
-                            );
-                          }
-                          return ListView.separated(
-                            itemCount: communities.length,
-                            separatorBuilder:
-                                (_, __) => const SizedBox(height: 6),
-                            itemBuilder: (context, index) {
-                              final community = communities[index];
-                              return InkWell(
-                                onTap:
-                                    () =>
-                                        navigateToCommunity(context, community),
-                                borderRadius: BorderRadius.circular(10),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        isDark
-                                            ? Colors.grey.shade900
-                                            : Colors.grey.shade100,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color:
-                                          isDark
-                                              ? Colors.grey.shade700
-                                              : Colors.grey.shade300,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 20,
-                                        backgroundImage: NetworkImage(
-                                          community.avatar,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          '${community.name}',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color:
-                                                theme
-                                                    .textTheme
-                                                    .bodyLarge
-                                                    ?.color,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
+                  child: ref.watch(userCommunitiesProvider).when(
+                    data: (communities) {
+                      if (communities.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.group_outlined,
+                                size: 48,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                "You haven't joined any communities yet",
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () => navigateToCreateCommunity(context),
+                                child: Text(
+                                  'Explore communities',
+                                  style: TextStyle(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              );
-                            },
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return ListView.separated(
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: communities.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final community = communities[index];
+                          return Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => navigateToCommunity(context, community),
+                              borderRadius: BorderRadius.circular(12),
+                              splashColor: colorScheme.primary.withOpacity(0.1),
+                              highlightColor: colorScheme.primary.withOpacity(0.05),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 16),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: colorScheme.surfaceContainerLowest,
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Community Avatar with gradient border
+                                    Container(
+                                      padding: const EdgeInsets.all(2),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.blue.shade400,
+                                            Colors.purple.shade600,
+                                          ],
+                                        ),
+                                      ),
+                                      child: CircleAvatar(
+                                        radius: 20,
+                                        backgroundImage: NetworkImage(
+                                            community.avatar),
+                                        backgroundColor: colorScheme.surface,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    // Community Name
+                                    Expanded(
+                                      child: Text(
+                                        '${community.name}',
+                                        style: theme.textTheme.bodyLarge?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          color: colorScheme.onSurface,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    // Chevron Icon
+                                    Icon(
+                                      Icons.chevron_left,
+                                      color: colorScheme.onSurfaceVariant,
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           );
                         },
-                        error: (error, _) => ErrorText(error: error.toString()),
-                        loading: () => const Loader(),
-                      ),
+                      );
+                    },
+                    error: (error, _) => ErrorText(error: error.toString()),
+                    loading: () => const Loader(),
+                  ),
                 ),
+
+              // Guest Sign In Section
+              if (isGuest) ...[
+                const Spacer(),
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Sign in to join communities',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const SignInButton(),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
