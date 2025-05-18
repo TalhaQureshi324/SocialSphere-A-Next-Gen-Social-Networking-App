@@ -41,7 +41,10 @@ class SearchCommunityDelegate extends SearchDelegate {
       data: (communities) {
         return userStream.when(
           data: (users) {
-            if (communities.isEmpty && users.isEmpty) {
+            // Filter out guest users
+            final nonGuestUsers = users.where((user) => user.isAuthenticated).toList();
+            
+            if (communities.isEmpty && nonGuestUsers.isEmpty) {
               return const Center(child: Text('No results found'));
             }
 
@@ -64,7 +67,7 @@ class SearchCommunityDelegate extends SearchDelegate {
                     onTap: () => navigateToCommunity(context, community.name),
                   ),
                 ),
-                if (users.isNotEmpty)
+                if (nonGuestUsers.isNotEmpty)
                   const Padding(
                     padding: EdgeInsets.all(8),
                     child: Text(
@@ -72,7 +75,7 @@ class SearchCommunityDelegate extends SearchDelegate {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
-                ...users.map(
+                ...nonGuestUsers.map(
                   (user) => ListTile(
                     leading: CircleAvatar(
                       backgroundImage: NetworkImage(user.profilePic),
