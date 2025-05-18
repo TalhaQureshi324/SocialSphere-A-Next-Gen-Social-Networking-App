@@ -535,11 +535,11 @@ class _PostCardState extends ConsumerState<PostCard> {
         icon: Stack(
           alignment: Alignment.center,
           children: [
-            Icon(Icons.more_vert, size: 20, color: colorScheme.onSurfaceVariant),
+            Icon(Icons.delete_forever , size: 20, color: colorScheme.onSurfaceVariant),
             Positioned(
               bottom: 0,
               right: 0,
-              child: Icon(Icons.shield, size: 12, color: Pallete.redColor),
+              child: Icon(Icons.shield, size: 14, color: Pallete.redColor),
             ),
           ],
         ),
