@@ -30,8 +30,12 @@ class ChatRepository {
   }
 
   Stream<List<ChatModel>> getChatStream(String user1Id, String user2Id) {
+    List<String> ids = [user1Id, user2Id];
+    ids.sort();
+    final conversationId = ids.join('_');
+
     return _chats
-        .where('participants', arrayContainsAny: [user1Id, user2Id])
+        .where('conversationId', isEqualTo: conversationId)
         .orderBy('timestamp', descending: false)
         .snapshots()
         .map(
@@ -44,6 +48,21 @@ class ChatRepository {
                   .toList(),
         );
   }
+  // Stream<List<ChatModel>> getChatStream(String user1Id, String user2Id) {
+  //   return _chats
+  //       .where('participants', arrayContainsAny: [user1Id, user2Id])
+  //       .orderBy('timestamp', descending: false)
+  //       .snapshots()
+  //       .map(
+  //         (event) =>
+  //             event.docs
+  //                 .map(
+  //                   (doc) =>
+  //                       ChatModel.fromMap(doc.data() as Map<String, dynamic>),
+  //                 )
+  //                 .toList(),
+  //       );
+  // }
 
   Stream<List<ChatModel>> getRecentChats(String userId) {
     return _chats

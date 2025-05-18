@@ -47,7 +47,8 @@ class ChatModel {
       'text': text,
       'timestamp': timestamp.millisecondsSinceEpoch,
       'isRead': isRead,
-      'participants': participants, // Now using class field
+      'participants': participants,
+      'conversationId': conversationId, // Add this line
     };
   }
 
@@ -62,7 +63,6 @@ class ChatModel {
       participants: List<String>.from(map['participants']),
     );
   }
-
   // Add this getter for conversation grouping
   String get conversationId {
     List<String> ids = [senderId, receiverId];
@@ -73,7 +73,7 @@ class ChatModel {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is ChatModel &&
         other.messageId == messageId &&
         other.senderId == senderId &&
