@@ -27,6 +27,8 @@ class _PostCardState extends ConsumerState<PostCard> {
   bool _isReactionHovered = false;
   late VideoPlayerController _videoController;
   ChewieController? _chewieController;
+    int currentIndex = 0; // Add this line to track current image index
+
 
   @override
   void initState() {
@@ -325,46 +327,90 @@ class _PostCardState extends ConsumerState<PostCard> {
     );
   }
 
-  Widget _buildImageContent() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+// Replace _buildImageContent() in PostCard with this:
+Widget _buildImageContent() {
+  final theme = Theme.of(context);
+  final colorScheme = theme.colorScheme;
+  final mediaUrls = widget.post.mediaUrls ?? 
+      (widget.post.link != null ? [widget.post.link!] : []);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.5,
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(12),
+    child: Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.5,
+      ),
+      child: mediaUrls.length == 1
+          ? _buildSingleImage(mediaUrls.first, colorScheme)
+          : _buildImageSlider(mediaUrls, colorScheme),
+    ),
+  );
+}
+
+Widget _buildSingleImage(String url, ColorScheme colorScheme) {
+  return Image.network(
+    url,
+    fit: BoxFit.cover,
+    width: double.infinity,
+    loadingBuilder: (context, child, loadingProgress) {
+      if (loadingProgress == null) return child;
+      return Container(
+        height: 200,
+        alignment: Alignment.center,
+        child: CircularProgressIndicator(
+          value: loadingProgress.expectedTotalBytes != null
+              ? loadingProgress.cumulativeBytesLoaded / 
+                  loadingProgress.expectedTotalBytes!
+              : null,
+          color: colorScheme.primary,
         ),
-        child: Image.network(
-          widget.post.link!,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Container(
-              height: 200,
-              alignment: Alignment.center,
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                    : null,
-                color: colorScheme.primary,
-              ),
-            );
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              height: 200,
-              color: colorScheme.surfaceContainerHighest,
-              alignment: Alignment.center,
-              child: Icon(Icons.broken_image, color: colorScheme.onSurfaceVariant),
-            );
-          },
+      );
+    },
+    errorBuilder: (context, error, stackTrace) {
+      return Container(
+        height: 200,
+        color: colorScheme.surfaceContainerHighest,
+        alignment: Alignment.center,
+        child: Icon(Icons.broken_image, color: colorScheme.onSurfaceVariant),
+      );
+    },
+  );
+}
+
+Widget _buildImageSlider(List<String> urls, ColorScheme colorScheme) {
+  return Stack(
+    children: [
+      PageView.builder(
+        itemCount: urls.length,
+        onPageChanged: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        itemBuilder: (context, index) {
+          return _buildSingleImage(urls[index], colorScheme);
+        },
+      ),
+      Positioned(
+        bottom: 8,
+        right: 8,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            '${currentIndex + 1}/${urls.length}',
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
       ),
-    );
-  }
+    ],
+  );
+}
 
+ 
   Widget _buildVideoContent() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;

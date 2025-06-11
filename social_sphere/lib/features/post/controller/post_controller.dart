@@ -182,54 +182,83 @@ class PostController extends StateNotifier<bool> {
   }
 
   // Updated shareImagePost with notifications
-  void shareImagePost({
-    required BuildContext context,
-    required String title,
-    required Community selectedCommunity,
-    required File? file,
-    required Uint8List? webFile,
-    required bool isAnonymous,
-  }) async {
-    state = true;
-    String postId = const Uuid().v1();
-    final user = _ref.read(userProvider)!;
-    final imageRes = await _storageRepository.storeFile(
-      path: 'posts/${selectedCommunity.name}',
+  // Add this new method to PostController
+void shareImagePost({
+  required BuildContext context,
+  required String title,
+  required Community selectedCommunity,
+  required List<File>? files,
+  required List<Uint8List>? webFiles,
+  required bool isAnonymous,
+}) async {
+  state = true;
+  String postId = const Uuid().v1();
+  final user = _ref.read(userProvider)!;
+  
+  // Upload all images
+  final List<String> imageUrls = [];
+  
+  try {
+    if (files != null && files.isNotEmpty) {
+      for (var file in files) {
+        final imageRes = await _storageRepository.storeFile(
+          path: 'posts/${selectedCommunity.name}',
+          id: '${postId}_${files.indexOf(file)}',
+          file: file, webFile: null,
+        );
+        imageRes.fold(
+          (l) => throw l,
+          (r) => imageUrls.add(r),
+        );
+      }
+    } else if (webFiles != null && webFiles.isNotEmpty) {
+      for (var webFile in webFiles) {
+        final imageRes = await _storageRepository.storeFile(
+          path: 'posts/${selectedCommunity.name}',
+          id: '${postId}_${webFiles.indexOf(webFile)}',
+          webFile: webFile, file: null,
+        );
+        imageRes.fold(
+          (l) => throw l,
+          (r) => imageUrls.add(r),
+        );
+      }
+    }
+    
+    final Post post = Post(
+      isAnonymous: isAnonymous,
       id: postId,
-      file: file,
-      webFile: webFile,
+      title: title,
+      communityName: selectedCommunity.name,
+      communityProfilePic: selectedCommunity.avatar,
+      upvotes: [],
+      downvotes: [],
+      commentCount: 0,
+      username: user.username,
+      uid: user.uid,
+      type: 'image',
+      createdAt: DateTime.now(),
+      awards: [],
+      mediaUrls: imageUrls,
     );
 
-    imageRes.fold((l) => showSnackBar(context, l.message), (r) async {
-      final Post post = Post(
-        isAnonymous: isAnonymous,
-        id: postId,
-        title: title,
-        communityName: selectedCommunity.name,
-        communityProfilePic: selectedCommunity.avatar,
-        upvotes: [],
-        downvotes: [],
-        commentCount: 0,
-        username: user.username,
-        uid: user.uid,
-        type: 'image',
-        createdAt: DateTime.now(),
-        awards: [],
-        link: r,
-      );
-
-      final res = await _postRepository.addPost(post);
-      _ref
-          .read(userProfileControllerProvider.notifier)
-          .updateUserKarma(UserKarma.imagePost);
-      state = false;
-      res.fold((l) => showSnackBar(context, l.message), (r) async {
-        await _createNotificationsForPost(post, selectedCommunity);
-        showSnackBar(context, 'Posted successfully!');
-        Routemaster.of(context).pop();
-      });
+    final res = await _postRepository.addPost(post);
+    _ref
+        .read(userProfileControllerProvider.notifier)
+        .updateUserKarma(UserKarma.imagePost);
+    state = false;
+    res.fold((l) => showSnackBar(context, l.message), (r) async {
+      await _createNotificationsForPost(post, selectedCommunity);
+      showSnackBar(context, 'Posted successfully!');
+      Routemaster.of(context).pop();
     });
+  } catch (e) {
+    state = false;
+    showSnackBar(context, e.toString());
   }
+}
+
+
 
   // Add new method
   void shareVideoPost({

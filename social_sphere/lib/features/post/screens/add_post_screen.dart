@@ -50,7 +50,7 @@ class AddPostScreen extends ConsumerWidget {
                   context: context,
                   icon: Icons.image_outlined,
                   label: 'Image Post',
-                  description: 'Share photos or artwork',
+                  description: 'Share one or multiple photos',
                   type: 'image',
                   colorScheme: colorScheme,
                   iconColor: Colors.blueAccent,
@@ -110,9 +110,10 @@ class AddPostScreen extends ConsumerWidget {
         onTap: () => navigateToType(context, type),
         splashFactory: InkRipple.splashFactory,
         overlayColor: MaterialStateProperty.resolveWith<Color?>(
-              (states) => states.contains(MaterialState.pressed)
-              ? colorScheme.primary.withOpacity(0.1)
-              : null,
+          (states) =>
+              states.contains(MaterialState.pressed)
+                  ? colorScheme.primary.withOpacity(0.1)
+                  : null,
         ),
         child: Container(
           padding: const EdgeInsets.all(16),
@@ -131,11 +132,7 @@ class AddPostScreen extends ConsumerWidget {
                   shape: BoxShape.circle,
                   color: iconColor.withOpacity(0.15),
                 ),
-                child: Icon(
-                  icon,
-                  size: 26,
-                  color: iconColor,
-                ),
+                child: Icon(icon, size: 26, color: iconColor),
               ),
               const SizedBox(width: 18),
               Expanded(
