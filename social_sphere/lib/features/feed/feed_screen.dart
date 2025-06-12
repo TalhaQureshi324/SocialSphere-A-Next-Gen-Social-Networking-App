@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:social_sphere/core/common/error_text.dart';
 import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/core/common/post_card.dart';
+import 'package:social_sphere/core/providers/ads_provider.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:social_sphere/features/community/controller/community_controller.dart';
 import 'package:social_sphere/features/post/controller/post_controller.dart';
+import 'package:social_sphere/models/post_model.dart';
 import 'package:social_sphere/theme/pallete.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class FeedScreen extends ConsumerStatefulWidget {
   const FeedScreen({super.key});
@@ -20,6 +23,11 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   final RefreshController _refreshController = RefreshController();
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;
+  static const _adFrequency = 5;
+
+  // Maintain unique BannerAds per index
+  final Map<int, BannerAd> _bannerAds = {};
+  final Set<int> _loadedAdIndexes = {};
 
   @override
   void initState() {
@@ -32,7 +40,27 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     _refreshController.dispose();
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
+
+    // Dispose all BannerAds
+    for (final ad in _bannerAds.values) {
+      ad.dispose();
+    }
     super.dispose();
+  }
+
+  Future<void> _loadBannerAd(int index) async {
+    if (_loadedAdIndexes.contains(index)) return;
+
+    final adsController = ref.read(adsControllerProvider);
+    try {
+      final bannerAd = await adsController.createBannerAd();
+      setState(() {
+        _bannerAds[index] = bannerAd;
+        _loadedAdIndexes.add(index);
+      });
+    } catch (e) {
+      debugPrint('Error loading banner ad at $index: $e');
+    }
   }
 
   Future<void> _onRefresh() async {
@@ -40,8 +68,8 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
       final user = ref.read(userProvider)!;
       if (user.isAuthenticated) {
         await ref.refresh(userCommunitiesProvider.future);
-        final communities = ref.read(userCommunitiesProvider).value ?? [];
-        await ref.refresh(userPostsProvider(communities).future);
+        final comms = ref.read(userCommunitiesProvider).value ?? [];
+        await ref.refresh(userPostsProvider(comms).future);
       } else {
         await ref.refresh(guestPostsProvider.future);
       }
@@ -52,62 +80,55 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent &&
+    if (_scrollController.position.atEdge &&
+        _scrollController.position.pixels != 0 &&
         !_isLoadingMore) {
       _loadMorePosts();
     }
   }
 
   Future<void> _loadMorePosts() async {
-    if (_isLoadingMore) return;
-
     setState(() => _isLoadingMore = true);
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    await Future.delayed(const Duration(seconds: 1));
     setState(() => _isLoadingMore = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentTheme = ref.watch(themeNotifierProvider);
+    final theme = ref.watch(themeNotifierProvider);
     final user = ref.watch(userProvider)!;
     final isGuest = !user.isAuthenticated;
 
     return Scaffold(
-      backgroundColor: currentTheme.scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshConfiguration(
           headerBuilder: () => ClassicHeader(
-            completeIcon: Icon(Icons.check, color: currentTheme.primaryColor),
-            idleIcon: Icon(Icons.arrow_downward, color: currentTheme.primaryColor),
+            completeIcon: Icon(Icons.check, color: theme.primaryColor),
+            idleIcon: Icon(Icons.arrow_downward, color: theme.primaryColor),
           ),
           child: SmartRefresher(
             controller: _refreshController,
             onRefresh: _onRefresh,
             enablePullDown: true,
-            header: ClassicHeader(
-              completeIcon: Icon(Icons.check, color: currentTheme.primaryColor),
-              idleIcon: Icon(Icons.arrow_downward, color: currentTheme.primaryColor),
-            ),
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
                 SliverToBoxAdapter(
                   child: Padding(
-                      padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-                      child: Center(
-                          child: Text(
-                            'Your Feed',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black, // Use a fallback color
-                            ),
-                          ),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child: Text(
+                      'Your Feed',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: theme.textTheme.titleLarge?.color,
                       ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-                _buildFeedContent(isGuest, currentTheme),
+                isGuest ? _buildGuestFeed(theme) : _buildUserFeed(theme),
               ],
             ),
           ),
@@ -116,107 +137,94 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     );
   }
 
-  Widget _buildFeedContent(bool isGuest, ThemeData theme) {
-    if (isGuest) {
-      return _buildGuestFeed(theme);
-    }
-    return _buildUserFeed(theme);
-  }
-
   Widget _buildUserFeed(ThemeData theme) {
     return ref.watch(userCommunitiesProvider).when(
       loading: () => const SliverFillRemaining(child: Loader()),
-      error: (error, stackTrace) => SliverToBoxAdapter(
-        child: ErrorText(error: error.toString()),
+      error: (e, _) => SliverToBoxAdapter(child: ErrorText(error: e.toString())),
+      data: (comms) => ref.watch(userPostsProvider(comms)).when(
+        loading: () => const SliverFillRemaining(child: Loader()),
+        error: (e, _) => SliverToBoxAdapter(child: ErrorText(error: e.toString())),
+        data: (posts) => _buildPostSliver(posts),
       ),
-      data: (communities) {
-        return ref.watch(userPostsProvider(communities)).when(
-          loading: () => const SliverFillRemaining(child: Loader()),
-          error: (error, stackTrace) => SliverToBoxAdapter(
-            child: ErrorText(error: error.toString()),
-          ),
-          data: (posts) {
-            if (posts.isEmpty) {
-              return SliverFillRemaining(child: _buildEmptyFeed(theme));
-            }
-            return SliverList(
-              delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                  if (index == posts.length) {
-                    return _buildLoadMoreIndicator();
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: PostCard(post: posts[index]),
-                  );
-                },
-                childCount: posts.length + 1,
-              ),
-            );
-          },
-        );
-      },
     );
   }
 
   Widget _buildGuestFeed(ThemeData theme) {
     return ref.watch(guestPostsProvider).when(
       loading: () => const SliverFillRemaining(child: Loader()),
-      error: (error, stackTrace) => SliverToBoxAdapter(
-        child: ErrorText(error: error.toString()),
-      ),
-      data: (posts) {
-        if (posts.isEmpty) {
-          return SliverFillRemaining(child: _buildEmptyFeed(theme));
-        }
-        return SliverList(
-          delegate: SliverChildBuilderDelegate(
-                (context, index) {
-              if (index == posts.length) {
-                return _buildLoadMoreIndicator();
-              }
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: PostCard(post: posts[index]),
-              );
-            },
-            childCount: posts.length + 1,
-          ),
-        );
-      },
+      error: (e, _) => SliverToBoxAdapter(child: ErrorText(error: e.toString())),
+      data: (posts) => _buildPostSliver(posts),
     );
   }
 
-  Widget _buildEmptyFeed(ThemeData theme) {
+  Widget _buildPostSliver(List<Post> posts) {
+    if (posts.isEmpty) {
+      return SliverFillRemaining(child: _buildEmptyFeed());
+    }
+
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          if (index == posts.length) return _buildLoadMoreIndicator();
+
+          // Show Banner after every _adFrequency posts
+          if (index > 0 && index % _adFrequency == 0) {
+            if (!_loadedAdIndexes.contains(index)) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _loadBannerAd(index);
+              });
+            }
+
+            final bannerAd = _bannerAds[index];
+            return Column(
+              children: [
+                if (bannerAd != null)
+                  SizedBox(
+                    width: bannerAd.size.width.toDouble(),
+                    height: bannerAd.size.height.toDouble(),
+                    child: AdWidget(ad: bannerAd),
+                  )
+                else
+                  SizedBox(
+                    height: AdSize.banner.height.toDouble(),
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
+                const SizedBox(height: 8),
+                _buildPostCard(posts[index]),
+              ],
+            );
+          }
+
+          return _buildPostCard(posts[index]);
+        },
+        childCount: posts.length + 1,
+      ),
+    );
+  }
+
+  Widget _buildPostCard(Post post) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: PostCard(post: post),
+    );
+  }
+
+  Widget _buildEmptyFeed() {
+    final theme = ref.watch(themeNotifierProvider);
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.feed_outlined,
-            size: 80,
-            color: theme.iconTheme.color?.withOpacity(0.3),
-          ),
+          Icon(Icons.feed_outlined, size: 80, color: theme.iconTheme.color?.withOpacity(0.3)),
           const SizedBox(height: 24),
-          Text(
-            'Your feed is empty',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-              color: theme.textTheme.titleLarge?.color?.withOpacity(0.8),
-            ),
+          Text('Your feed is empty',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: theme.textTheme.titleLarge?.color?.withOpacity(0.8))
           ),
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(
-              'Join communities to see posts in your feed, or refresh to check for new content',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: theme.textTheme.bodyLarge?.color?.withOpacity(0.6),
-              ),
-            ),
+          const SizedBox(height: 16),
+          Text(
+            'Join communities or pull to refresh to load posts.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color?.withOpacity(0.6)),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -224,19 +232,10 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.primaryColor,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               elevation: 0,
             ),
-            child: Text(
-              'Refresh Feed',
-              style: TextStyle(
-                color: theme.colorScheme.onPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            child: Text('Refresh', style: TextStyle(fontSize: 16, color: theme.colorScheme.onPrimary)),
           ),
         ],
       ),
@@ -246,11 +245,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   Widget _buildLoadMoreIndicator() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Center(
-        child: _isLoadingMore
-            ? const CircularProgressIndicator()
-            : const SizedBox.shrink(),
-      ),
+      child: Center(child: _isLoadingMore ? const CircularProgressIndicator() : const SizedBox.shrink()),
     );
   }
 }

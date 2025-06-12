@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:social_sphere/core/common/error_text.dart';
 import 'package:social_sphere/core/common/loader.dart';
 import 'package:social_sphere/core/common/offline_screen.dart';
+import 'package:social_sphere/core/providers/ads_provider.dart';
 import 'package:social_sphere/core/providers/connectivity_provider.dart';
 import 'package:social_sphere/features/auth/controller/auth_controller.dart';
 import 'package:social_sphere/firebase_options.dart';
@@ -15,6 +16,10 @@ import 'package:routemaster/routemaster.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:connectivity_plus/connectivity_plus.dart';
 
+// NEW IMPORTS for Ads
+import 'package:social_sphere/core/ads/ads_controller.dart'; // Update path as per your project structure
+import 'package:social_sphere/core/providers/ads_provider.dart';    // Update path as per your project structure
+
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
@@ -22,9 +27,20 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // Initialize AdsController
+  final adsController = AdsController();
+  await adsController.initialize();
+
   timeago.setLocaleMessages('en', timeago.EnMessages());
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        adsControllerProvider.overrideWithValue(adsController),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends ConsumerStatefulWidget {
