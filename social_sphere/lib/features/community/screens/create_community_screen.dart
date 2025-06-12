@@ -37,7 +37,7 @@ class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Create a Community",
+          "Create a Group",
           style: TextStyle(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
@@ -60,7 +60,7 @@ class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
                   children: [
                     const SizedBox(height: 16),
                     Text(
-                      "Community Name",
+                      "Group Name",
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface,
@@ -121,7 +121,7 @@ class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            "Community names should be unique, contain no spaces, and be under 21 characters.",
+                            "Group names should be unique, contain no spaces, and be under 21 characters.",
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -145,7 +145,7 @@ class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Your community will be:",
+                                "Your group will be:",
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: colorScheme.onSurfaceVariant,
                                 ),
@@ -211,7 +211,7 @@ class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
                   ),
                 )
                     : const Text(
-                  'Create Community',
+                  'Create Group',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,

@@ -197,7 +197,7 @@ class AuthRepository {
   //     } else {
   //       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
   //       email = googleUser?.email ?? '';
-  //       if (!email.endsWith('1034@gmail.com')) {
+  //       if (!email.endsWith('1034@itu.edu.pk')) {
   //       // Sign out to prevent keeping invalid session
   //       await _auth.signOut();
   //       await _googleSignIn.signOut();
@@ -220,7 +220,7 @@ class AuthRepository {
 
   //     // Get and check email
   //     // final email = userCredential.user?.email ?? '';
-  //     // if (!email.endsWith('1034@gmail.com')) {
+  //     // if (!email.endsWith('1034@itu.edu.pk')) {
   //     //   // Sign out to prevent keeping invalid session
   //     //   await _auth.signOut();
   //     //   await _googleSignIn.signOut();
@@ -288,10 +288,10 @@ class AuthRepository {
 
         // Safely get email
         email = userCredential.user?.email ?? '';
-        if (!email.endsWith('@gmail.com') && !email.endsWith('.pk')) {
+        if (!email.endsWith('@itu.edu.pk') && !email.endsWith('.pk')) {
           await _auth.signOut();
           return left(
-            Failure('Only @gmail.com or .pk emails are allowed.'),
+            Failure('Only @itu.edu.pk or .pk emails are allowed.'),
           );
         }
       } else {
@@ -303,11 +303,11 @@ class AuthRepository {
 
         email = googleUser.email;
 
-        if (!email.endsWith('@gmail.com') && !email.endsWith('.pk')) {
+        if (!email.endsWith('@itu.edu.pk') && !email.endsWith('.pk')) {
           await _auth.signOut();
           await _googleSignIn.signOut();
           return left(
-            Failure('Only @gmail.com or .pk emails are allowed.'),
+            Failure('Only @itu.edu.pk or .pk emails are allowed.'),
           );
         }
 
